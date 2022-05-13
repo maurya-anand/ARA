@@ -13,8 +13,8 @@ It is critical to include the 'bioconda channel' in addition to the other channe
 -   Activate the environment and run the setup script.
 
 ```{r}
-  $ cd AMA.v1.2.0/
-  $ conda create --name env --file requirements-linux-64.txt -y
+  $ cd AMA/
+  $ conda create --name env --file requirements.txt -y
   $ conda activate env
   $ perl setup.pl
 ```
