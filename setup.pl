@@ -232,7 +232,7 @@ read_drop_perc_cutoff = 70
 
 [blastn]
 
-execute = 0
+execute = 1
 perc_identity = 90
 qcov_hsp_perc = 80
 num_threads = 2
