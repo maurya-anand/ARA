@@ -379,7 +379,7 @@ sub screen_raw_data {
 			my @blStatsRec = split("\t",$blast_stats);
 			my @bowStatsRec = split("\t",$bowtie_stats);
 			
-			if (($blastn_exec_flag == 1) or ($bowtie2_exec_flag == 1)){
+			if (($blastn_exec_flag == 1) && ($bowtie2_exec_flag == 1)){
 				print STATS "$run\t$blast_stats\t$bowtie_stats\t$runIDs{$run}{'row'}\n";
 				
 				if (($blStatsRec[-1] eq "PASS") or ($bowStatsRec[-1] eq "PASS")){
