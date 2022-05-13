@@ -1,0 +1,12 @@
+# This file may be used to create an environment using:
+# $ conda create --name screenSRAenv --file requirements.txt -y
+# platform: linux-64
+python=3.6.10
+blast
+bowtie2
+entrez-direct
+fastqc
+fastx_toolkit
+samtools
+sra-tools
+trimmomatic
