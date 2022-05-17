@@ -1,0 +1,12 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: osx-64
+python=3.9.12=h1cc4136_1_cpython
+blast=2.12.0=h0370960_3
+bowtie2=2.4.5=py39he245752_2
+entrez-direct=16.2=h193322a_0
+fastqc=0.11.9=hdfd78af_1
+fastx_toolkit=0.0.14=h589c0e0_9
+samtools=1.15.1=h9f30945_0
+sra-tools=2.8.0=0
+trimmomatic=0.39=hdfd78af_2
