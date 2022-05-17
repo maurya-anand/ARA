@@ -1,18 +1,3 @@
----
-title: "AMA"
-fontsize: 12pt
-urlcolor: cyan
-output:
-  pdf_document:
-    toc: no
-    highlight: tango
-  html_document:
-    toc: yes
-    toc_float: yes
-  word_document:
-    toc: no
----
-
 ------------------------------------------------------------------------
 
 ### Requirements
