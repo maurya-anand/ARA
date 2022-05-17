@@ -14,18 +14,23 @@ use Log::Log4perl qw(get_logger);
 use Getopt::Long qw(:config no_ignore_case);
 use FindBin qw($Bin);
 use Sys::Hostname;
-
-my $input_run_info = '';
-my $output_directory = '';
-my $output_file_label = '';
-my $run_mode = '';
-my $input_config = '';
-my $help = 0;
-
-# my $input_config = $ARGV[0];
+use File::Basename;
 
 my $host = hostname;
 my $base_path = $Bin;
+
+my $input_run_info = '';
+my $input_seq_fasta = '';
+my $output_directory = '';
+my $output_file_label = '';
+my $run_mode = 'screen';
+my $input_config = '';
+my $help = 0;
+
+my $default_out_dir = "$base_path/results";
+my $default_config_file = "$base_path/conf.txt";
+
+# my $input_config = $ARGV[0];
 
 my ($maxproc) = 1;
 my $pm = Parallel::ForkManager->new($maxproc);
@@ -41,8 +46,8 @@ unless (Log::Log4perl::initialized()) {
 my $logger = Log::Log4perl->get_logger();
 
 GetOptions ("i|input=s" => \$input_run_info,
+			"s|sequences=s" => \$input_seq_fasta,
 			"o|output=s"   => \$output_directory,
-			"l|label=s"  => \$output_file_label,
 			"m|mode=s"  => \$run_mode,
 			"c|config=s"  => \$input_config,
 			"h|help"  => \$help
@@ -51,35 +56,48 @@ GetOptions ("i|input=s" => \$input_run_info,
 			$logger->error("Invalid arguments");
 
 if ($help) {
-	$logger->info("\n\nUsage info :\nperl ama.pl\n--input or -i\t<runInfo_csv>\n--output or -o\t<output_directory>\n--label or -l\t<prefix_label>\n--mode or -m\t<run_mode> (eg: 'screen' or 'full' or 'both' or 'summary')\n--config or -c\t<pipeline_config_file>\n");
-	$logger->info("Example usage:\nperl ama.pl --input SraRunInfo.csv --output src/main/test/ --label test --mode screen --config conf.txt");
+	$logger->info("\n\nUsage info :\n\nperl ama.pl\n--input or -i  <runInfo_csv>\n--sequences or -s  <sequences.fasta>\n--output or -o  <output_directory>\n--mode or -m  <run_mode> (eg: 'screen' or 'full' or 'both' or 'summary'). Default: screen\n--config or -c  <pipeline_config_file>\n");
+	$logger->info("Example usage:\nperl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output src/main/test/ screen --config conf.txt");
 	exit;
 }
 else {
 	my $inp_flag = 0;
-	# if ($input_run_info eq ''){$inp_flag = 1; $logger->error("Run info table is missing.");}
-	# if ((! -s "$input_run_info") or ($input_run_info eq '')){$inp_flag = 1; $logger->error("Invalid input.");}
+
 	if ($input_run_info eq ''){
-		$inp_flag = 1; $logger->error("Invalid input.");
+		$inp_flag = 1; $logger->error("Invalid input. Please provide a valid 'SRA run accession' or a file containing the list of SRA run accessions.");
 	}
-	# if ($output_directory eq ''){$inp_flag = 1; $logger->error("Output directory is missing.");}
-	if (! -d "$output_directory"){$inp_flag = 1; $logger->error("Invalid Output directory.");}
 	
-	if ($output_file_label eq ''){$inp_flag = 1; $logger->error("Analysis lable/prefix is missing.");}
+	if ((! -s "$input_seq_fasta") or ($input_seq_fasta eq '')){
+		$inp_flag = 1; $logger->error("Invalid fasta file. Please provide the full path of the file.");
+	}
 	
-	# if ($run_mode eq ''){$inp_flag = 1; $logger->error("Pipeline run mode is missing. (use: 'screen' or 'full' or 'both')");}
-	if ($run_mode !~ /^screen$|^full$|^summary$|^both$/i){$inp_flag = 1; $logger->error("Invalid run mode. (use: 'screen' or 'full' or 'both' or 'summary')");}
-	
-	# if ($input_config eq ''){$inp_flag = 1; $logger->error("Pipeline configuration file is missing.");}
-	if (! -s "$input_config"){$inp_flag = 1; $logger->error("Invalid configuration file");}
+	if (! -d "$output_directory"){
+		$logger->info("Output directory not specified. Using defaults.");
+		# $inp_flag = 1; $logger->error("Invalid Output directory.");}
+		$output_directory = $default_out_dir;
+	}
+
+	if ($run_mode !~ /^screen$|^full$|^summary$|^both$/i){
+		$logger->info("Run mode not specified. Using default 'screen' mode. (Choices: 'screen' or 'full' or 'both' or 'summary')");
+	}
+
+	if (! -s "$input_config"){
+		if (-s "$default_config_file"){
+			$logger->info("Configuration file not specified: $input_config. Using default $default_config_file.");
+			$input_config = $default_config_file;
+		}
+		else {
+			$inp_flag = 1; $logger->error("Configuration file not found.");
+		}
+	}
 
 	if ($inp_flag == 1){
-		$logger->info("Try: perl ama.pl -help");
+		$logger->info("Type this command for usage info: perl ama.pl -help");
 		exit;
 	}
 	else {
 		## Loading the pipeline configuration
-		$logger->info("Pipeline : Config: $input_config");
+		# $logger->info("Pipeline : Config: $input_config");
 		$tool_config_obj = new Config::Simple($input_config);
 	}
 }
@@ -103,20 +121,6 @@ my $bowtie2_index_path	= $tool_config_obj->param('bowtie2.bowtie_index_path');
 my $single_run_mode = 0;
 my $multi_run_mode = 0;
 
-if ($blastn_exec_flag == 1){
-	if (! glob ("$blastn_db_path*")){
-		$logger->error("Incorrect Configuration : blastn > db_path : Please provide the path for the blast database.");
-		exit;
-	}
-}
-
-if ($bowtie2_exec_flag == 1){
-	if (! glob ("$bowtie2_index_path*")){
-		$logger->error("Incorrect Configuration : bowtie2 > bowtie_index_path : Please provide the path for the bowtie2 index.");
-		exit;
-	}
-}
-
 if(! -s "$input_run_info"){
 	if (validate_input($input_run_info) == 0){
 		$logger->error("Invalid input. Please provide a valid SRA run accession.");
@@ -137,7 +141,7 @@ else {
 	$pm = Parallel::ForkManager->new($maxproc);
 }
 
-$logger->info("Pipeline : v.$pipeline_ver executed on $host");
+
 if (lc $run_mode eq "screen"){
 	$exec_SRA_analysis_flag = 0;
 }
@@ -153,12 +157,17 @@ if (lc $run_mode eq "summary"){
 	$exec_SRA_analysis_flag = 0;
 }
 
+my @fasta_label = split (/\./, basename($input_seq_fasta));
+pop @fasta_label;
+$output_file_label = join(".",@fasta_label);
+# print "$output_file_label\n";
+
 my $metadata_dir = "$output_directory/$output_file_label/metadata";
 system("mkdir -p $metadata_dir");
 
 # retrieving run and sample info from NCBI SRA
-$logger->info("USING: $input_run_info");
-
+$logger->info("Pipeline : AMA v.$pipeline_ver executed on $host");
+$logger->info("Using the following parameters:\n\n--input: $input_run_info\n--sequence: $input_seq_fasta\n--output: $output_directory\n--mode: $run_mode\n--config: $input_config\n\n");
 
 sub validate_input {
 	my ($id)=(@_);
@@ -172,45 +181,47 @@ sub validate_input {
 	}
 }
 
-my $exec_comm1 = "perl $base_path/src/main/scripts/metadata/fetch.SRA.metadata.pl $input_run_info $metadata_dir $output_file_label $base_path $ncbi_edirect_path list";
-if ($single_run_mode == 1){
-	$exec_comm1 = "perl $base_path/src/main/scripts/metadata/fetch.SRA.metadata.pl $input_run_info $metadata_dir $output_file_label $base_path $ncbi_edirect_path single";
-}
-# $logger->info("COMMAND: $exec_comm1");
-system("$exec_comm1");
-
 if ($exec_SRA_screen_flag == 1){
-	
 	my $data_analysis_dir = "$output_directory/$output_file_label/screening_results";
-	
 	my $outFileParsed="$metadata_dir/$output_file_label.metadata.txt";
 	my $sraIDsBlastStats="$output_directory/$output_file_label/$output_file_label.screening.analysis.stats.txt";
 	my $outRunInfoParsedScreened="$metadata_dir/$output_file_label.metadata.screened.txt";
 	
-	if (-s "$outFileParsed"){
-		system("mkdir -p $data_analysis_dir");
-		screen_raw_data($outFileParsed,$data_analysis_dir,$sraIDsBlastStats,$outRunInfoParsedScreened);
+	if ($single_run_mode == 1){
+		my $metadata_exec_comm = "perl $base_path/src/main/scripts/metadata/fetch.SRA.metadata.pl $input_run_info $metadata_dir $output_file_label $base_path $ncbi_edirect_path single";
+		system("$metadata_exec_comm");
 	}
+	else {
+		my $metadata_exec_comm = "perl $base_path/src/main/scripts/metadata/fetch.SRA.metadata.pl $input_run_info $metadata_dir $output_file_label $base_path $ncbi_edirect_path list";
+		system("$metadata_exec_comm");
+	}
+
+	system("mkdir -p $data_analysis_dir");
+	screen_raw_data($outFileParsed,$data_analysis_dir,$sraIDsBlastStats,$outRunInfoParsedScreened);
 }
 
 if ($exec_SRA_analysis_flag == 1){
-
 	my $data_analysis_dir = "$output_directory/$output_file_label/full_analyis_results";
-
 	my $runInfoParsed="$metadata_dir/$output_file_label.metadata.txt";
+	my $sraIDsAlnStats="$output_directory/$output_file_label/$output_file_label.full.analysis.stats.txt";
+
+	if ($single_run_mode == 1){
+		my $metadata_exec_comm = "perl $base_path/src/main/scripts/metadata/fetch.SRA.metadata.pl $input_run_info $metadata_dir $output_file_label $base_path $ncbi_edirect_path single";
+		system("$metadata_exec_comm");
+	}
+	else {
+		my $metadata_exec_comm = "perl $base_path/src/main/scripts/metadata/fetch.SRA.metadata.pl $input_run_info $metadata_dir $output_file_label $base_path $ncbi_edirect_path list";
+		system("$metadata_exec_comm");
+	}
 	
 	if (lc $run_mode eq "both"){
 		$runInfoParsed="$metadata_dir/$output_file_label.metadata.screened.txt";
 	}
 	
-	my $sraIDsAlnStats="$output_directory/$output_file_label/$output_file_label.full.analysis.stats.txt";
-	
-	if (-s "$runInfoParsed"){
-		system("mkdir -p $data_analysis_dir");
-		analyse_raw_data($runInfoParsed,$data_analysis_dir,$sraIDsAlnStats);
-		# $logger->info("Pipeline : Combined alignment stats : $sraIDsAlnStats");
-	}
+	system("mkdir -p $data_analysis_dir");
+	analyse_raw_data($runInfoParsed,$data_analysis_dir,$sraIDsAlnStats);
 }
+
 
 if (lc $run_mode eq "summary"){
 	my $screening_analysis_dir = "$output_directory/$output_file_label/screening_results";
@@ -240,7 +251,6 @@ sub analyse_raw_data {
 	my($metadata,$work_dir,$statsFile)=(@_);
 
 	my %runIDs;
-	# my @runInfoHeaders;
 	
 	open (TAB,"$metadata") or $logger->logdie("Cannot read metadata - $metadata: $!");
 	my $header = <TAB>; chomp $header;
@@ -263,8 +273,6 @@ sub analyse_raw_data {
 	}
 	close TAB;
 
-
-
 	if (lc $run_mode ne 'summary'){
 		## parallel execution of the pipeline
 		foreach my $run (keys %runIDs){
@@ -275,7 +283,6 @@ sub analyse_raw_data {
 		}
 		$pm->wait_all_children;
 	}
-
 
 	if (-d "$work_dir"){
 		
@@ -373,13 +380,13 @@ sub screen_raw_data {
 		foreach my $run (keys %runIDs){
 			my $blast_stats; my $bowtie_stats;
 			
-			$blast_stats = collect_blast_stats($run,$work_dir);
-			$bowtie_stats = collect_bowtie2_stats($run,$work_dir);
-			
-			my @blStatsRec = split("\t",$blast_stats);
-			my @bowStatsRec = split("\t",$bowtie_stats);
-			
-			if (($blastn_exec_flag == 1) && ($bowtie2_exec_flag == 1)){
+			if (($blastn_exec_flag == 1) and ($bowtie2_exec_flag == 1)){
+				$blast_stats = collect_blast_stats($run,$work_dir);
+				$bowtie_stats = collect_bowtie2_stats($run,$work_dir);
+
+				my @blStatsRec = split("\t",$blast_stats);
+				my @bowStatsRec = split("\t",$bowtie_stats);
+				
 				print STATS "$run\t$blast_stats\t$bowtie_stats\t$runIDs{$run}{'row'}\n";
 				
 				if (($blStatsRec[-1] eq "PASS") or ($bowStatsRec[-1] eq "PASS")){
@@ -387,6 +394,10 @@ sub screen_raw_data {
 				}
 			}
 			elsif ($blastn_exec_flag == 1){
+				$blast_stats = collect_blast_stats($run,$work_dir);
+				
+				my @blStatsRec = split("\t",$blast_stats);
+
 				print STATS "$run\t$blast_stats\t$runIDs{$run}{'row'}\n";
 				
 				if (($blStatsRec[-1] eq "PASS")){
@@ -394,6 +405,10 @@ sub screen_raw_data {
 				}
 			}
 			else{
+				$bowtie_stats = collect_bowtie2_stats($run,$work_dir);
+				
+				my @bowStatsRec = split("\t",$bowtie_stats);
+				
 				print STATS "$run\t$bowtie_stats\t$runIDs{$run}{'row'}\n";
 				
 				if (($bowStatsRec[-1] eq "PASS")){
@@ -409,15 +424,15 @@ sub screen_raw_data {
 sub analyse_sra {
 
 	my($runID,$type,$spots,$work_dir,$fraction)=(@_);
-	
+
 	if ($fraction){
 		$logger->info("Pipeline : Processing : $runID");
-		my $analysis_comm="perl $base_path/src/main/scripts/analysis/analyse.SRA.data.pl $input_config $runID $type $spots $work_dir $fraction";
+		my $analysis_comm="perl $base_path/src/main/scripts/analysis/analyse.SRA.data.pl $input_config $runID $type $spots $work_dir $input_seq_fasta $fraction";
 		system("$analysis_comm");
 	}
 	else {
 		$logger->info("Pipeline : Processing : $runID");
-		my $analysis_comm="perl $base_path/src/main/scripts/analysis/analyse.SRA.data.pl $input_config $runID $type $spots $work_dir";
+		my $analysis_comm="perl $base_path/src/main/scripts/analysis/analyse.SRA.data.pl $input_config $runID $type $spots $work_dir $input_seq_fasta";
 		system("$analysis_comm");
 	}
 }
@@ -438,9 +453,8 @@ sub collect_bowtie2_stats {
 	my $overall_aln="-\t-\t-\t-\t-\t-\t-";
 	my $bowtie2_stats_file="$work_dir/$runID/bowtie2/alignment.txt";
 	if (-s "$bowtie2_stats_file"){
-		my $aln_stats= `tail -n1 $bowtie2_stats_file`;
-		chomp $aln_stats; # 2315245   1068    0.0461  3137916 1269    0.0404
-		$overall_aln = $aln_stats;
+		$overall_aln= `tail -n1 $bowtie2_stats_file`;
+		chomp $overall_aln; # 2315245   1068    0.0461  3137916 1269    0.0404
 	}
 	return $overall_aln;
 }
@@ -449,7 +463,6 @@ sub summarize {
 	my($metadata,$work_dir,$statsFile)=(@_);
 	
 	my %runIDs;
-	# my @runInfoHeaders;
 	
 	open (TAB,"$metadata") or $logger->logdie("Cannot read metadata - $metadata: $!");
 	my $header = <TAB>; chomp $header;
@@ -493,7 +506,7 @@ sub summarize {
 			$blast_stats = collect_blast_stats($runAccn,$work_dir);
 			$bowtie_stats = collect_bowtie2_stats($runAccn,$work_dir);
 			
-			if (($blastn_exec_flag == 1) && ($bowtie2_exec_flag == 1)){
+			if (($blastn_exec_flag == 1) and ($bowtie2_exec_flag == 1)){
 				print STATS "$runAccn\t$blast_stats\t$bowtie_stats\t$runIDs{$runAccn}{'row'}\n";
 			}
 			elsif ($blastn_exec_flag == 1){
