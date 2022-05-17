@@ -24,63 +24,77 @@ unless (Log::Log4perl::initialized()) {
 my $logger = Log::Log4perl->get_logger();
 my $csv = Text::CSV->new ({ binary => 1, auto_diag => 1 });
 
+my @metadata_recs;
 
-my $outFile="$outDir/$outfileLabel.tmp.txt";
+if 	($input_type eq 'list'){
+    my @fname = split(/\./,$inpSRARunInfo);
+    open(LIST,"$inpSRARunInfo") or die "can't open the file - - - -\n";
+    while(my $rec=<LIST>){
+        chomp $rec;
+        if (($rec=~ /^Run/) or ($rec eq "")){next;}
+        
+        my $sraRun; my @cols; my $str='-';
+
+        if ($fname[-1] eq 'csv'){
+            my $res = $csv->parse($rec);
+            @cols = $csv->fields ();
+            $sraRun = shift(@cols);
+            # $str = join ("\t", @cols);
+        }
+        else {
+            @cols = split(/\s+/,$rec);
+            $sraRun = shift(@cols);
+            # $str = join ("\t", @cols);
+        }
+        my $outFile="$outDir/$sraRun.run.metadata.txt";
+        if (!-s "$outFile"){
+            open (OUT,">$outFile") or $logger->logdie("Cannot write to file - $outFile: $!");
+            print OUT "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\n";
+            $logger->info("Fetching metadata for $sraRun");
+            my $outString= getRunTable($sraRun);
+            print OUT "$outString\n";
+            close OUT;
+        }
+    }
+}
+else {
+    my $outFile="$outDir/$inpSRARunInfo.run.metadata.txt";
+    if (!-s "$outFile"){
+        open (OUT,">$outFile") or $logger->logdie("Cannot write to file - $outFile: $!");
+        print OUT "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\n";
+        $logger->info("Fetching metadata for $inpSRARunInfo");
+        my $outString= getRunTable($inpSRARunInfo);
+        print OUT "$outString\n";
+        close OUT;
+    }
+}
+
+my @files = glob("$outDir/*.run.metadata.txt");
+
+foreach my $file (@files) {
+    if (-s "$file"){
+        my $rec = `tail -n1 $file`;
+        chomp $rec;
+        push @metadata_recs, $rec;
+    }
+}
+
+my $outTmp="$outDir/$outfileLabel.tmp.txt";
 my $outFileParsed="$outDir/$outfileLabel.metadata.txt";
 
+open (TMP,">$outTmp") or $logger->logdie("Cannot write to file - $outTmp: $!");
+print TMP "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\n";
+print TMP join("\n",@metadata_recs);
+close TMP;
 
-fetch_metadata($inpSRARunInfo,$outFile);
-parse_table($outFile,$outFileParsed);
-system("rm $outFile");
+parse_table($outTmp,$outFileParsed);
+system("rm $outTmp");
 
-$logger->info("Metadata table generated:\t$outFileParsed");
-
-
-
-sub fetch_metadata {
-	my ($inp,$out)=(@_);
-
-	open (OUT,">$out") or $logger->logdie("Cannot write to file - $out: $!");
-	print OUT "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\n";
-	
-	if 	($input_type eq 'list'){
-		my @fname = split(/\./,$inp);
-		open(LIST,"$inp") or die "can't open the file - - - -\n";
-		while(my $rec=<LIST>){
-			chomp $rec;
-			if (($rec=~ /^Run/) or ($rec eq "")){next;}
-			
-			my $sraRun; my @cols; my $str='-';
-
-			if ($fname[-1] eq 'csv'){
-				my $res = $csv->parse($rec);
-				@cols = $csv->fields ();
-				$sraRun = shift(@cols);
-				# $str = join ("\t", @cols);
-			}
-			else {
-				@cols = split(/\s+/,$rec);
-				$sraRun = shift(@cols);
-				# $str = join ("\t", @cols);
-			}
-			$logger->info("Fetching metadata for $sraRun");
-			my $outString= getRunTable($sraRun);
-			print OUT "$outString\n";
-		}
-	}
-	else {
-		$logger->info("Fetching metadata for $inp");
-		my $outString= getRunTable($inp);
-		print OUT "$outString\n";
-	}
-
-}
 
 sub getRunTable {
 	my ($id)=(@_);
 	my ($samHeaders,$samDetails) = getSampleInfo($id);
 	my ($runtype,$runspots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,$studyTitle) = getRunInfo($id);
-	# my $retStr="$str\t$samHeaders\t$samDetails";
 	my $retStr="$id\t$runtype\t$runspots\t$sampleAlias\t$sampleAccn\t$studyAlias\t$studyAccn\t$studyTitle\t$samHeaders\t$samDetails";
 	return $retStr;
 }
@@ -118,6 +132,7 @@ sub getRunInfo {
 	}
 	return ($type,$spots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,$studyTitle);
 }
+
 
 
 sub parse_table {
