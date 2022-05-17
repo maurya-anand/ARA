@@ -55,7 +55,7 @@ sub install_perl_module {
         $module->import();
     };
     unless($@) {
-        print "Module $module exists. Skipping installation\n";
+        print "\n\nModule $module exists. Skipping installation\n";
         # exit();
     }
     print "Installing $module from CPAN: \n";
@@ -101,7 +101,9 @@ else {
 
 # # setup blastn
 my $blastn_path = `which blastn`;
+my $makeblastdb_path = `which makeblastdb`;
 chomp $blastn_path;
+chomp $makeblastdb_path;
 if ($blastn_path eq ''){
     system ("wget $blastnURL -P $tools_path/");
     system ("tar -xvf $tools_path/ncbi-blast-2.10.0+-x64-linux.tar.gz -C $tools_path/");
@@ -112,6 +114,7 @@ if ($blastn_path eq ''){
     }
     else {
         $blastn_path = "$tools_path/ncbi-blast-2.10.0+/bin/blastn";
+        $makeblastdb_path = "$tools_path/ncbi-blast-2.10.0+/bin/makeblastdb";
     }
 }
 
@@ -135,7 +138,9 @@ if ($fastqdump_path eq ""){
 
 # # setup bowtie2
 my $bowtie2_path = `which bowtie2`;
+my $bowtie2_build_path = `which bowtie2-build`;
 chomp $bowtie2_path;
+chomp $bowtie2_build_path;
 if ($bowtie2_path eq ""){
     system ("wget $bowtie2URL -P $tools_path/");
     system ("unzip -o $tools_path/bowtie2-2.4.5-linux-x86_64.zip -d $tools_path/");
@@ -144,7 +149,8 @@ if ($bowtie2_path eq ""){
         print "ERROR : Unable to setup bowtie2. Please provide a valid path for bowtie2 in the config file: $out_conf\n";
     }
     else {
-        $bowtie2_path = "$tools_path/bowtie2-2.4.5-linux-x86_64/bowtie2"; 
+        $bowtie2_path = "$tools_path/bowtie2-2.4.5-linux-x86_64/bowtie2";
+        $bowtie2_build_path = "$tools_path/bowtie2-2.4.5-linux-x86_64/bowtie2-build"; 
     }
 }
 
@@ -204,7 +210,7 @@ my $config = <<"CONFIG";
 [pipeline]
 
 threads = 2
-version = 1.3.0
+version = 1.4.0
 ########################################## end of pipeline config #####################################################
 
 [fastq_dump]
@@ -237,8 +243,6 @@ perc_identity = 90
 qcov_hsp_perc = 80
 num_threads = 2
 alignment_perc_cutoff = 1
-db_path = example/reference/blast_db/TAIR10_ncrna
-# create a db using: makeblastdb -in Arabidopsis_thaliana.TAIR10.ncrna.fa -dbtype 'nucl' -hash_index -out blast_db/TAIR10_ncrna
 ########################################## end blastn config ########################################################
 
 [bowtie2]
@@ -247,8 +251,6 @@ execute = 1
 threads = 2
 end_to_end_preset = sensitive
 alignment_perc_cutoff = 1
-bowtie_index_path = example/reference/bowtie2_ref/TAIR10_ncrna
-# create index using: bowtie2-build Arabidopsis_thaliana.TAIR10.ncrna.fa bowtie2_ref/TAIR10_ncrna
 ########################################## end bowtie2 config ########################################################
 
 [toolPath]
@@ -259,7 +261,9 @@ trimmomatic = $trimmomatic_path
 adapters_PE = $trimmomatic_adapter_PE
 adapters_SE = $trimmomatic_adapter_SE
 blastn = $blastn_path
+makeblastdb = $makeblastdb_path
 bowtie2 = $bowtie2_path
+bowtie2-build = $bowtie2_build_path
 samtools = $tools{'samtools'}
 ncbi_edirect = $tools{'efetch'}
 fastx_collapser = $tools{'fastx_collapser'}
@@ -268,7 +272,6 @@ CONFIG
 
 
 print "Configuration file generated : $out_conf\n";
-print "Please specify the path for the blast database or bowtie2 index of your choice in the configuration\n";
 
 open (CONF, ">$out_conf");
 print CONF "$config";
