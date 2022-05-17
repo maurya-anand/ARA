@@ -12,6 +12,7 @@ use Config::Simple;
 use Log::Log4perl qw(get_logger);
 use FindBin qw($Bin);
 use Sys::Hostname;
+use File::Basename;
 
 my $host = hostname;
 my $base_path = $Bin;
@@ -23,7 +24,9 @@ my $sra_sample_id = $ARGV[1];
 my $sample_type = $ARGV[2];
 my $num_spots = $ARGV[3];
 my $analysis_dir = $ARGV[4];
-my $fastq_dump_perc = $ARGV[5];
+my $inp_sequences = $ARGV[5];
+my $fastq_dump_perc = $ARGV[6];
+
 
 my $conf=q{
 log4perl.rootLogger = DEBUG, Logfile
@@ -81,7 +84,9 @@ my $adapters_PE     = $tool_config_obj->param('toolPath.adapters_PE');
 my $adapters_SE     = $tool_config_obj->param('toolPath.adapters_SE');
 my $fastx_collapser = $tool_config_obj->param('toolPath.fastx_collapser');
 my $blastn          = $tool_config_obj->param('toolPath.blastn');
+my $makeblastdb		= $tool_config_obj->param('toolPath.makeblastdb');
 my $bowtie2         = $tool_config_obj->param('toolPath.bowtie2');
+my $bowtie2_build	= $tool_config_obj->param('toolPath.bowtie2-build');
 my $samtools        = $tool_config_obj->param('toolPath.samtools');
 my $pipeline_ver    = $tool_config_obj->param('pipeline.version');
 
@@ -97,12 +102,12 @@ my $blastn_perc_identity    = $tool_config_obj->param('blastn.perc_identity');
 my $blastn_qcov_hsp_perc    = $tool_config_obj->param('blastn.qcov_hsp_perc');
 my $blastn_num_threads      = $tool_config_obj->param('blastn.num_threads');
 my $blastn_align_cutoff		= $tool_config_obj->param('blastn.alignment_perc_cutoff');
-my $blastn_db_path          = $tool_config_obj->param('blastn.db_path');
+# my $blastn_db_path          = $tool_config_obj->param('blastn.db_path');
 
 my $bowtie2_threads         = $tool_config_obj->param('bowtie2.threads');
 my $bowtie2_e2e_preset		= $tool_config_obj->param('bowtie2.end_to_end_preset');
 my $bowtie2_align_cutoff	= $tool_config_obj->param('bowtie2.alignment_perc_cutoff');
-my $bowtie2_index_path      = $tool_config_obj->param('bowtie2.bowtie_index_path');
+# my $bowtie2_index_path      = $tool_config_obj->param('bowtie2.bowtie_index_path');
 
 # my $fastq_dump_exec_flag = 1; my $fastqc_exec_flag = 1; my $trimmomatic_exec_flag = 1; my $blastn_exec_flag = 1; 
 
@@ -152,6 +157,9 @@ else {
 }
 
 $logger->info("Pipeline : v.$pipeline_ver executed on $host");
+
+my $references_dir = "$analysis_dir/reference";
+system("mkdir -p $references_dir");
 
 my $output_dir = "$analysis_dir/$sra_sample_id";
 if (-d "$output_dir"){
@@ -274,6 +282,8 @@ if ($blastn_exec_flag == 1 ) {
     my $blast_filtered_results = "$blast_analysis_dir/$sra_sample_id\_blast_best_hits.txt";
     my $blast_filtered_bed = "$blast_analysis_dir/$sra_sample_id\_blast_best_hits_sorted.bed";
 
+	my $blastn_db_path =  create_blastn_db($inp_sequences,$references_dir);
+
 
 	if ($sample_type eq "PAIRED") {
 
@@ -345,6 +355,8 @@ if ($bowtie2_exec_flag == 1 ) {
 	my $trimmedCollapsedReHeadFasta;
 	
 	my $sampleTrimmedFastq;
+
+	my $bowtie2_index_path =  create_bowtie2_index($inp_sequences,$references_dir);
 
     if (! -s "$alignment_stats"){
 
@@ -877,4 +889,44 @@ sub check_bowtie2_hits {
     my $retStr="$uniqueReads\t$bowtieHitscount\t$percBowtieHits\t$totalReads\t$countMappedReads\t$countMappedReadsPerc";
     
     return ($percBowtieHits,$countMappedReadsPerc,$retStr);
+}
+
+
+sub create_bowtie2_index {
+	my ($inp_sequence,$outDir)= @_;
+	
+	my @fasta_label = split (/\./, basename($inp_sequence));
+	pop @fasta_label;
+	my $index_label = join(".",@fasta_label);
+
+	system("mkdir -p $outDir/bowtie2_index");
+
+	my $create_index_comm = "$bowtie2_build $inp_sequence $outDir/bowtie2_index/$index_label";
+	if (! glob ("$outDir/bowtie2_index/$index_label*")){
+		system ("$create_index_comm");
+	}
+
+	return "$outDir/bowtie2_index/$index_label";
+    
+}
+
+
+sub create_blastn_db {
+	my ($inp_sequence,$outDir)= @_;
+	
+	my @fasta_label = split (/\./, basename($inp_sequence));
+	pop @fasta_label;
+	my $index_label = join(".",@fasta_label);
+
+	system("mkdir -p $outDir/blastn_db");
+
+	# my $ = "$bowtie2_build $inp_sequence $outDir/blastn_db/$index_label";
+	my $create_db_comm = "$makeblastdb -in $inp_sequence -dbtype 'nucl' -hash_index -out $outDir/blastn_db/$index_label";
+	
+	if (! glob ("$outDir/blastn_db/$index_label*")){
+		system ("$create_db_comm");
+	}
+
+	return "$outDir/blastn_db/$index_label";
+    
 }
