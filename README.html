@@ -1523,6 +1523,9 @@ documentation</a>).</li>
 <p>It is critical to include the ‘bioconda channel’ in addition to the
 other channels as indicated in the <a href="https://bioconda.github.io/user/install.html#set-up-channels" title="Bioconda documentation - Set up channels">official
 manual</a>.</p>
+<p>Please pay attention to the instructions in the installer while
+setting up the miniconda. Use <code>echo $PATH</code> to verify whether
+the ‘conda installation’ of Python is in your PATH variable.</p>
 <hr />
 </div>
 <div id="installation" class="section level3">
@@ -1539,16 +1542,37 @@ create a virtual environment.</p></li>
 <div class="line-block">This tool was tested on “Ubuntu 20.04.4 LTS”
 with “conda 4.11.0” using the installation procedure mentioned
 above.</div>
-<div id="troubleshooting" class="section level4">
-<h4>Troubleshooting</h4>
+<p>Please refer the Troubleshooting section for additional
+resources.</p>
+<hr />
+</div>
+<div id="example-usage" class="section level3">
+<h3>Example usage</h3>
 <ul>
-<li><p>Error installing Bioconda:</p>
-<p>The user may need to use <code>conda search &lt;tool name&gt;</code>
-to find the supported tool and then manually install it by using
-<code>conda install &lt;tool name&gt;</code>. Note: On macOS and Linux,
-the supported packages and their dependencies aren’t always the same.
-Even when all of the requirements are completely aligned, the set of
-available versions isn’t necessarily the same.</p></li>
+<li><p>To get full usage info: <code>perl ama.pl --help</code></p></li>
+<li><p>Minimal usage example:
+<code>perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa</code></p></li>
+</ul>
+<hr />
+</div>
+<div id="troubleshooting" class="section level3">
+<h3>Troubleshooting</h3>
+<ul>
+<li><p>Errors related to Bioconda:</p>
+<p>The <code>requirements.txt</code> provided in this package was
+exported from <code>conda 4.11.0</code> installation running on
+<code>Ubuntu 20.04.4 LTS</code>. User can try using
+<code>conda search &lt;tool name&gt;</code> command to find the
+supported tool and then manually install it by typing
+<code>conda install &lt;tool name&gt;</code> inside the environment.</p>
+<p> | Note: On macOS and Linux, the supported packages and their
+dependencies aren’t always the same. Even when all of the requirements
+are completely aligned, the set of available versions isn’t necessarily
+the same. User may try setting up the environment using any of the
+<code>requirements-*.txt</code> provided in the
+<code>src/main/resources/</code> directory.</p>
+<p>Please refer the official <a href="https://conda.io/projects/conda/en/latest/user-guide/troubleshooting.html" title="User guide » Troubleshooting">troubleshooting guide</a> for
+further help.</p></li>
 <li><p>Error using CPAN modules:</p>
 <p>Before beginning the setup, Mac OS users must ensure that they have
 write permission to the <code>/Users/\*/.cpan/</code> directory, and
@@ -1556,30 +1580,14 @@ Linux users must ensure that their CPAN is properly configured.</p></li>
 </ul>
 <hr />
 </div>
-</div>
-<div id="example-usage" class="section level3">
-<h3>Example usage</h3>
-<ul>
-<li><p>To get usage info: <code>perl ama.pl --help</code></p></li>
-<li><p>Command:
-<code>perl ama.pl --input example/SraRunInfo.csv --output src/main/test/ --label test_run --mode screen --config conf.txt</code></p></li>
-</ul>
-<hr />
-</div>
 <div id="configuration-file" class="section level3">
 <h3>Configuration file</h3>
 <p>Configuration file <code>conf.txt</code> requires the absolute path
-of the tools, blast database and bowtie index.</p>
-<p>Before starting the analysis, please specify the path to your
-preferred <em>blast database</em> (<code>db_path</code>) and <em>bowtie
-index</em> (<code>bowtie_index_path</code>) in the configuration
-file.</p>
+of the tools incorporated into the pipeline.</p>
 <p>The user can choose between <em>blastn</em> or <em>bowtie2</em> by
 changing the ‘execute flag’ to either 0 or 1 in the configuration file
 while leaving the rest of the parameters to default values. By default,
-both the tools are enabled <em>ie</em>. <code>execute = 1</code>. For
-additional information, please refer to the <code>example</code>
-directory provided in this package.</p>
+both the tools are enabled <em>ie</em>. <code>execute = 1</code>.</p>
 <p><strong>Note</strong>: If the user wishes to use a different
 installation than Bioconda, the user can manually install and specify
 the path of the tools in the configuration.</p>
@@ -1588,32 +1596,32 @@ the path of the tools in the configuration.</p>
 <div id="pipeline-parameters" class="section level3">
 <h3>Pipeline parameters</h3>
 <ul>
-<li><p><strong><code>--input</code></strong> The user can provide input
-in either of the following ways:</p>
+<li><p><strong><code>--input</code></strong> (mandatory) The user can
+provide input in either of the following ways:</p>
 <ul>
 <li><p>A single SRA run accession. eg:
-<strong><code>perl ama.pl --input SRR12548227 --output src/main/test/ --label test_run --mode screen --config conf.txt</code></strong></p></li>
+<strong><code>perl ama.pl --input SRR12548227 --output src/main/test/ --mode screen --config conf.txt</code></strong></p></li>
 <li><p>A list of run accessions in a text file (1 run accession per
 line). eg:
-<strong><code>perl ama.pl --input example/list.txt --output src/main/test/ --label test_run --mode screen --config conf.txt</code></strong></p></li>
+<strong><code>perl ama.pl --input example/list.txt --output src/main/test/ --mode screen --config conf.txt</code></strong></p></li>
 <li><p>The SRA runInfo exported directly from the NCBI-SRA web portal.
 Goto the <a href="https://www.ncbi.nlm.nih.gov/sra" title="Home - NCBI - SRA">SRA homepage</a> and search for the desired
 keyword. Export the <code>SraRunInfo.csv</code> by clicking ‘Send to’
 =&gt; File =&gt; RunInfo). eg:
-<strong><code>perl ama.pl --input example/SraRunInfo.csv --output src/main/test/ --label test_run --mode screen --config conf.txt</code></strong></p></li>
+<strong><code>perl ama.pl --input example/SraRunInfo.csv --output src/main/test/ --mode screen --config conf.txt</code></strong></p></li>
 </ul></li>
-<li><p><strong><code>--output</code></strong> eg:
+<li><p><strong><code>--sequences</code></strong> (mandatory) The user
+should provide a fasta file containing the query sequences.</p></li>
+<li><p><strong><code>--output</code></strong> (optional) eg:
 <strong><code>src/main/test</code></strong> The output directory to
-store the results.</p></li>
-<li><p><strong><code>--label</code></strong> eg:
-<strong><code>test_run</code></strong> Provide any name for the
-analysis. This prefix will be used to create a parent working directory
-to store all the results, summary and log files.</p></li>
-<li><p><strong><code>--mode</code></strong> eg:
+store the results. By default, the output will be stored into the
+<strong><code>results/</code></strong> directory of the
+package.</p></li>
+<li><p><strong><code>--mode</code></strong> (optional) eg:
 <strong><code>screen</code></strong>. Choose one of the three modes to
-run the pipline. The <strong><code>screen</code></strong> mode will only
-download a fraction of the dataset per SRA-run accession and analyse the
-file as per the given configuration. The
+run the pipline. The <strong><code>screen</code></strong> is the default
+mode which will only download a fraction of the dataset per SRA-run
+accession and analyse the file as per the given configuration. The
 <strong><code>full</code></strong> mode will execute the pipeline by
 downloading the complete fastq file per SRA-run accession. The
 <strong><code>both</code></strong> option searches for samples using a
@@ -1623,8 +1631,10 @@ downloading the entire fastq file. The
 <strong><code>summary</code></strong> mode will generate a unified
 alignment summary by examining the output files created by either
 screen-mode or full-mode.</p></li>
-<li><p><strong><code>--config</code></strong> eg:
-<strong><code>conf.txt</code></strong> Pipeline configuration.</p></li>
+<li><p><strong><code>--config</code></strong> (optional) eg:
+<strong><code>conf.txt</code></strong> Pipeline configuration. By
+default it will use the <strong><code>conf.txt</code></strong> generated
+by the setup script.</p></li>
 </ul>
 <hr />
 </div>
