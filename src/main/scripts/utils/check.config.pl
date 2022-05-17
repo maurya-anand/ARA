@@ -109,16 +109,6 @@ if (! check_exists_command "$samtools"){
     $flag = 1;
 }
 
-# if (! glob ("$blastn_db_path*")){
-#     $logger->error("Incorrect Configuration : blastn > db_path : Please provide the path for the blast database.");
-#     $flag = 1;
-# }
-
-# if (! glob ("$bowtie2_index_path*")){
-#     $logger->error("Incorrect Configuration : bowtie2 > bowtie_index_path : Please provide the path for the bowtie2 index.");
-#     $flag = 1;
-# }
-
 if (! -s "$adapters_PE"){
     $logger->error("Incorrect Configuration : toolPath > adapters_PE : Please check the paired end adapter fasta.");
     $flag = 1;
