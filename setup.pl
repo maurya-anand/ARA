@@ -209,7 +209,7 @@ my $config = <<"CONFIG";
 
 [pipeline]
 
-threads = 2
+threads = 1
 version = 1.4.0
 ########################################## end of pipeline config #####################################################
 
