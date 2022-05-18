@@ -1541,16 +1541,15 @@ disk space available.</p></li>
 create a virtual environment.</p></li>
 <li><p>Activate the environment and run the setup script.</p></li>
 </ul>
-<pre class="{r}"><code>  $ cd AMA/
-  $ conda create --name env --file requirements.txt -y
-  $ conda activate env
-  $ perl setup.pl</code></pre>
+<pre class="bash"><code>cd AMA-main/
+conda create –name ama_env –file requirements.txt -y
+conda activate ama_env
+perl setup.pl</code></pre>
 <blockquote>
 <p><em>Note:</em> This tool was tested on “Ubuntu 20.04.4 LTS” with
 “conda 4.11.0” using the installation procedure mentioned above.</p>
 </blockquote>
-<p>Please refer the Troubleshooting section for additional
-resources.</p>
+<p>Please refer the Troubleshooting section below for help.</p>
 <hr />
 </div>
 <div id="example-usage" class="section level3">
@@ -1613,8 +1612,7 @@ accession.</p></li>
 <li><p>The <strong><code>both</code></strong> option searches for
 samples using a fraction of the data that meet the minimum alignment
 cutoff from either ‘bowtie2’ or ‘blastn’, and then automatically
-performs alignment by downloading the entire fastq file.</p>
-<p>eg:
+performs alignment by downloading the entire fastq file. eg:
 <strong><code>perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/ --mode screen</code></strong></p>
 <blockquote>
 <p><em>Note:</em> There is a supporting

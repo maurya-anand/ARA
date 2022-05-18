@@ -20,16 +20,16 @@ Please pay attention to the instructions in the installer while setting up the m
 
 -   Activate the environment and run the setup script.
 
-```{r}
-  $ cd AMA/
-  $ conda create --name env --file requirements.txt -y
-  $ conda activate env
-  $ perl setup.pl
+``` bash
+cd AMA-main/
+conda create –name ama_env –file requirements.txt -y
+conda activate ama_env
+perl setup.pl
 ```
 
 > *Note:* This tool was tested on "Ubuntu 20.04.4 LTS" with "conda 4.11.0" using the installation procedure mentioned above.
 
-Please refer the Troubleshooting section for additional resources.
+Please refer the Troubleshooting section below for help.
 
 ------------------------------------------------------------------------
 
@@ -71,9 +71,7 @@ The user can choose between *blastn* or *bowtie2* by changing the 'execute flag'
 
     -   The **`full`** mode will execute the pipeline by downloading the complete fastq file per SRA-run accession.
 
-    -   The **`both`** option searches for samples using a fraction of the data that meet the minimum alignment cutoff from either 'bowtie2' or 'blastn', and then automatically performs alignment by downloading the entire fastq file.
-
-        eg: **`perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/ --mode screen`**
+    -   The **`both`** option searches for samples using a fraction of the data that meet the minimum alignment cutoff from either 'bowtie2' or 'blastn', and then automatically performs alignment by downloading the entire fastq file. eg: **`perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/ --mode screen`**
 
         > *Note:* There is a supporting **`summary`** mode, that will generate a unified alignment summary by examining the output files created by either screen-mode or full-mode. The summary mode should only be used when the user needs to recreate the summary stats from the pre-existing results. The user must enter **`–mode summary`** along with the previously used command parameters to re-generate the summary.
 
