@@ -11,7 +11,7 @@
 
 
 
-<title>AMA</title>
+<title>AMA.v1.4.0</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1508,7 +1508,9 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">AMA</h1>
+<h1 class="title toc-ignore">AMA.v1.4.0</h1>
+<h3 class="subtitle">An automatic pipeline for exploration of SRA
+datasets with sequences as a query</h3>
 
 </div>
 
@@ -1531,6 +1533,10 @@ the ‘conda installation’ of Python is in your PATH variable.</p>
 <div id="installation" class="section level3">
 <h3>Installation</h3>
 <ul>
+<li><p>Please download and extract the package.zip file into the desired
+location before starting the setup. Before downloading and processing
+fastq files with the pipeline, please make sure the system has enough
+disk space available.</p></li>
 <li><p>Use the <code>requirements.txt</code> provided in the package and
 create a virtual environment.</p></li>
 <li><p>Activate the environment and run the setup script.</p></li>
@@ -1555,31 +1561,6 @@ resources.</p>
 </ul>
 <hr />
 </div>
-<div id="troubleshooting" class="section level3">
-<h3>Troubleshooting</h3>
-<ul>
-<li><p>Errors related to Bioconda:</p>
-<p>The <code>requirements.txt</code> provided in this package was
-exported from <code>conda 4.11.0</code> installation running on
-<code>Ubuntu 20.04.4 LTS</code>. User can try using
-<code>conda search &lt;tool name&gt;</code> command to find the
-supported tool and then manually install it by typing
-<code>conda install &lt;tool name&gt;</code> inside the environment.</p>
-<p> | Note: On macOS and Linux, the supported packages and their
-dependencies aren’t always the same. Even when all of the requirements
-are completely aligned, the set of available versions isn’t necessarily
-the same. User may try setting up the environment using any of the
-<code>requirements-*.txt</code> provided in the
-<code>src/main/resources/</code> directory.</p>
-<p>Please refer the official <a href="https://conda.io/projects/conda/en/latest/user-guide/troubleshooting.html" title="User guide » Troubleshooting">troubleshooting guide</a> for
-further help.</p></li>
-<li><p>Error using CPAN modules:</p>
-<p>Before beginning the setup, Mac OS users must ensure that they have
-write permission to the <code>/Users/\*/.cpan/</code> directory, and
-Linux users must ensure that their CPAN is properly configured.</p></li>
-</ul>
-<hr />
-</div>
 <div id="configuration-file" class="section level3">
 <h3>Configuration file</h3>
 <p>Configuration file <code>conf.txt</code> requires the absolute path
@@ -1600,41 +1581,82 @@ the path of the tools in the configuration.</p>
 provide input in either of the following ways:</p>
 <ul>
 <li><p>A single SRA run accession. eg:
-<strong><code>perl ama.pl --input SRR12548227 --output src/main/test/ --mode screen --config conf.txt</code></strong></p></li>
+<strong><code>perl ama.pl --input SRR12548227 --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa</code></strong></p></li>
 <li><p>A list of run accessions in a text file (1 run accession per
 line). eg:
-<strong><code>perl ama.pl --input example/list.txt --output src/main/test/ --mode screen --config conf.txt</code></strong></p></li>
+<strong><code>perl ama.pl --input example/list.txt --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa</code></strong></p></li>
 <li><p>The SRA runInfo exported directly from the NCBI-SRA web portal.
 Goto the <a href="https://www.ncbi.nlm.nih.gov/sra" title="Home - NCBI - SRA">SRA homepage</a> and search for the desired
 keyword. Export the <code>SraRunInfo.csv</code> by clicking ‘Send to’
 =&gt; File =&gt; RunInfo). eg:
-<strong><code>perl ama.pl --input example/SraRunInfo.csv --output src/main/test/ --mode screen --config conf.txt</code></strong></p></li>
+<strong><code>perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa</code></strong></p></li>
 </ul></li>
 <li><p><strong><code>--sequences</code></strong> (mandatory) The user
 should provide a fasta file containing the query sequences.</p></li>
-<li><p><strong><code>--output</code></strong> (optional) eg:
-<strong><code>src/main/test</code></strong> The output directory to
-store the results. By default, the output will be stored into the
-<strong><code>results/</code></strong> directory of the
-package.</p></li>
-<li><p><strong><code>--mode</code></strong> (optional) eg:
-<strong><code>screen</code></strong>. Choose one of the three modes to
-run the pipline. The <strong><code>screen</code></strong> is the default
-mode which will only download a fraction of the dataset per SRA-run
-accession and analyse the file as per the given configuration. The
-<strong><code>full</code></strong> mode will execute the pipeline by
-downloading the complete fastq file per SRA-run accession. The
-<strong><code>both</code></strong> option searches for samples using a
-fraction of the data that meet the minimum alignment cutoff from either
-‘bowtie2’ or ‘blastn’, and then automatically performs alignment by
-downloading the entire fastq file. The
-<strong><code>summary</code></strong> mode will generate a unified
+<li><p><strong><code>--output</code></strong> (optional) The output
+directory to store the results. By default, the output will be stored
+into the <strong><code>results/</code></strong> directory of the
+package. eg:
+<strong><code>perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/</code></strong></p></li>
+<li><p><strong><code>--mode</code></strong> (optional) Choose one of the
+three modes to run the pipeline.</p>
+<ul>
+<li><p>The <strong><code>screen</code></strong> is the default mode
+which will only download a fraction of the data-set per SRA-run
+accession and analyse the file as per the given configuration.</p></li>
+<li><p>The <strong><code>full</code></strong> mode will execute the
+pipeline by downloading the complete fastq file per SRA-run
+accession.</p></li>
+<li><p>The <strong><code>both</code></strong> option searches for
+samples using a fraction of the data that meet the minimum alignment
+cutoff from either ‘bowtie2’ or ‘blastn’, and then automatically
+performs alignment by downloading the entire fastq file.</p>
+<p>eg:
+<strong><code>perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/ --mode screen</code></strong></p>
+<div class="line-block">There is a supporting
+<strong><code>summary</code></strong> mode, that will generate a unified
 alignment summary by examining the output files created by either
-screen-mode or full-mode.</p></li>
-<li><p><strong><code>--config</code></strong> (optional) eg:
-<strong><code>conf.txt</code></strong> Pipeline configuration. By
-default it will use the <strong><code>conf.txt</code></strong> generated
-by the setup script.</p></li>
+screen-mode or full-mode. The summary mode should only be used when the
+user needs to recreate the summary stats from the pre-existing results.
+The user must enter <strong><code>–mode summary</code></strong> along
+with the previously used command parameters to re-generate the
+summary.</div></li>
+</ul></li>
+<li><p><strong><code>--config</code></strong> (optional) Pipeline
+configuration. By default it will use the
+<strong><code>conf.txt</code></strong> generated by the setup script.
+eg:
+<strong><code>perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/ --mode screen --config conf.txt</code></strong></p></li>
+</ul>
+<hr />
+</div>
+<div id="troubleshooting" class="section level3">
+<h3>Troubleshooting</h3>
+<ul>
+<li><p>Errors related to Bioconda:</p>
+<p>Use <strong><code>conda list</code></strong> command to verify
+whether the packages mentioned in the <code>requirements.txt</code> are
+successfully installed into your environment.</p>
+<div class="line-block">Note: The <code>requirements.txt</code> provided
+in this package was exported from <code>conda 4.11.0</code> installation
+running on <code>Ubuntu 20.04.4 LTS</code>.</div></li>
+<li><p>In case of any missing tool/ conflicting dependencies in the
+environment, the user can try using
+<strong><code>conda search &lt;tool name&gt;</code></strong> command to
+find the supported version of the tool and then manually install it by
+typing <strong><code>conda install &lt;tool name&gt;</code></strong>
+inside the environment. Please refer the official <a href="https://conda.io/projects/conda/en/latest/user-guide/troubleshooting.html" title="User guide » Troubleshooting">troubleshooting guide</a> for
+further help.</p>
+<div class="line-block">Note: On macOS and Linux, the supported tools
+and their dependencies aren’t always the same. Even when all of the
+requirements are completely aligned, the set of available versions isn’t
+necessarily the same. User may try setting up the environment using any
+of the supplementary <code>requirements-*.txt</code> provided in the
+<code>src/main/resources/</code> directory.</div></li>
+<li><p>Error using CPAN modules:</p>
+<p>Before beginning the setup, Mac OS users must ensure that they have
+write permission to the <code>/Users/\*/.cpan/</code> directory, and
+Linux users must ensure that their CPAN is properly configured.</p></li>
 </ul>
 <hr />
 </div>
