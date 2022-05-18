@@ -57,7 +57,7 @@ GetOptions ("i|input=s" => \$input_run_info,
 
 if ($help) {
 	$logger->info("\n\nUsage info :\n\nperl ama.pl\n--input or -i  <runInfo_csv>\n--sequences or -s  <sequences.fasta>\n--output or -o  <output_directory>\n--mode or -m  <run_mode> (eg: 'screen' or 'full' or 'both' or 'summary'). Default: screen\n--config or -c  <pipeline_config_file>\n");
-	$logger->info("Example usage:\nperl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output src/main/test/ screen --config conf.txt");
+	$logger->info("Example usage:\nperl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output src/main/test/ --mode screen --config conf.txt");
 	exit;
 }
 else {
