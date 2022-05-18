@@ -14,7 +14,7 @@ Please pay attention to the instructions in the installer while setting up the m
 
 ### Installation
 
--   Please download and extract the package.zip file into the desired location before starting the setup. Before downloading and processing fastq files with the pipeline, please make sure the system has enough disk space available.
+-   Please download and extract the zip file into the desired location before starting the setup. Before downloading and processing fastq files with the pipeline, please make sure the system has enough disk space available.
 
 -   Use the `requirements.txt` provided in the package and create a virtual environment.
 
