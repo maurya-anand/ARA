@@ -88,6 +88,8 @@ else {
 		}
 		else {
 			$inp_flag = 1; $logger->error("Configuration file not found.");
+			$logger->info("Please Provide a valid configuration file or run setup.pl to generate one.");
+			exit;
 		}
 	}
 
