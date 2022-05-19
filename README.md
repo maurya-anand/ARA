@@ -1,7 +1,6 @@
 ## AMA : An automatic pipeline for exploration of SRA datasets with sequences as a query
 
 
-
 ### Requirements
 
 -   Bioconda ([Go to the official documentation](https://bioconda.github.io/user/install.html "Getting Started - Bioconda documentation")).
@@ -14,7 +13,7 @@ Please pay attention to the instructions in the installer while setting up the m
 
 ### Installation
 
--   Please download and extract the zip file into the desired location before starting the setup. Before downloading and processing fastq files with the pipeline, please make sure the system has enough disk space available.
+-   Please download and extract the zip file into the desired location before starting the setup. Before downloading and processing fastq files with the pipeline, please make sure the system has enough disk space available for the data you wish to retrieve and analyse from the SRA repository.
 
 -   Use the `requirements.txt` provided in the package and create a virtual environment.
 
