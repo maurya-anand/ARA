@@ -21,7 +21,7 @@ Please pay attention to the instructions in the installer while setting up the m
 
 ``` bash
 cd AMA-main/
-conda create –name ama_env –file requirements.txt -y
+conda create –-name ama_env –-file requirements.txt -y
 conda activate ama_env
 perl setup.pl
 ```
