@@ -25,7 +25,8 @@ my $sample_type = $ARGV[2];
 my $num_spots = $ARGV[3];
 my $analysis_dir = $ARGV[4];
 my $inp_sequences = $ARGV[5];
-my $fastq_dump_perc = $ARGV[6];
+my $references_dir = $ARGV[6];
+my $fastq_dump_perc = $ARGV[7];
 
 
 my $conf=q{
@@ -158,7 +159,7 @@ else {
 
 $logger->info("Pipeline : v.$pipeline_ver executed on $host");
 
-my $references_dir = "$analysis_dir/reference";
+# my $references_dir = "$analysis_dir/reference";
 system("mkdir -p $references_dir");
 
 my $output_dir = "$analysis_dir/$sra_sample_id";

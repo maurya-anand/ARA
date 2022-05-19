@@ -117,8 +117,8 @@ my $ncbi_edirect_path	= $tool_config_obj->param('toolPath.ncbi_edirect');
 my $pipeline_threads	= $tool_config_obj->param('pipeline.threads');
 my $pipeline_ver		= $tool_config_obj->param('pipeline.version');
 
-my $blastn_db_path		= $tool_config_obj->param('blastn.db_path');
-my $bowtie2_index_path	= $tool_config_obj->param('bowtie2.bowtie_index_path');
+my $bowtie2_build	= $tool_config_obj->param('toolPath.bowtie2-build');
+my $makeblastdb		= $tool_config_obj->param('toolPath.makeblastdb');
 
 my $single_run_mode = 0;
 my $multi_run_mode = 0;
@@ -167,6 +167,8 @@ $output_file_label = join(".",@fasta_label);
 my $metadata_dir = "$output_directory/$output_file_label/metadata";
 system("mkdir -p $metadata_dir");
 
+my $references_dir = "$output_directory/$output_file_label/reference";
+
 # retrieving run and sample info from NCBI SRA
 $logger->info("Pipeline : AMA v.$pipeline_ver executed on $host");
 $logger->info("Using the following parameters:\n\n--input: $input_run_info\n--sequence: $input_seq_fasta\n--output: $output_directory\n--mode: $run_mode\n--config: $input_config\n\n");
@@ -197,6 +199,14 @@ if ($exec_SRA_screen_flag == 1){
 		my $metadata_exec_comm = "perl $base_path/src/main/scripts/metadata/fetch.SRA.metadata.pl $input_run_info $metadata_dir $output_file_label $base_path $ncbi_edirect_path list";
 		system("$metadata_exec_comm");
 	}
+	
+	system("mkdir -p $references_dir");
+	if ($blastn_exec_flag == 1){
+		my $blastn_db_path =  create_blastn_db($input_seq_fasta,$references_dir);
+	}
+	if ($bowtie2_exec_flag == 1){
+		my $bowtie2_index_path =  create_bowtie2_index($input_seq_fasta,$references_dir);
+	}
 
 	system("mkdir -p $data_analysis_dir");
 	screen_raw_data($outFileParsed,$data_analysis_dir,$sraIDsBlastStats,$outRunInfoParsedScreened);
@@ -220,6 +230,14 @@ if ($exec_SRA_analysis_flag == 1){
 		$runInfoParsed="$metadata_dir/$output_file_label.metadata.screened.txt";
 	}
 	
+	system("mkdir -p $references_dir");
+	if ($blastn_exec_flag == 1){
+		my $blastn_db_path =  create_blastn_db($input_seq_fasta,$references_dir);
+	}
+	if ($bowtie2_exec_flag == 1){
+		my $bowtie2_index_path =  create_bowtie2_index($input_seq_fasta,$references_dir);
+	}
+
 	system("mkdir -p $data_analysis_dir");
 	analyse_raw_data($runInfoParsed,$data_analysis_dir,$sraIDsAlnStats);
 }
@@ -429,12 +447,12 @@ sub analyse_sra {
 
 	if ($fraction){
 		$logger->info("Pipeline : Processing : $runID");
-		my $analysis_comm="perl $base_path/src/main/scripts/analysis/analyse.SRA.data.pl $input_config $runID $type $spots $work_dir $input_seq_fasta $fraction";
+		my $analysis_comm="perl $base_path/src/main/scripts/analysis/analyse.SRA.data.pl $input_config $runID $type $spots $work_dir $input_seq_fasta $references_dir $fraction";
 		system("$analysis_comm");
 	}
 	else {
 		$logger->info("Pipeline : Processing : $runID");
-		my $analysis_comm="perl $base_path/src/main/scripts/analysis/analyse.SRA.data.pl $input_config $runID $type $spots $work_dir $input_seq_fasta";
+		my $analysis_comm="perl $base_path/src/main/scripts/analysis/analyse.SRA.data.pl $input_config $runID $type $spots $work_dir $input_seq_fasta $references_dir";
 		system("$analysis_comm");
 	}
 }
@@ -520,4 +538,44 @@ sub summarize {
 		}
 		close STATS;
 	}
+}
+
+
+sub create_bowtie2_index {
+	my ($inp_sequence,$outDir)= @_;
+	
+	my @fasta_label = split (/\./, basename($inp_sequence));
+	pop @fasta_label;
+	my $index_label = join(".",@fasta_label);
+
+	system("mkdir -p $outDir/bowtie2_index");
+
+	my $create_index_comm = "$bowtie2_build $inp_sequence $outDir/bowtie2_index/$index_label";
+	if (! glob ("$outDir/bowtie2_index/$index_label*")){
+		system ("$create_index_comm");
+	}
+
+	return "$outDir/bowtie2_index/$index_label";
+    
+}
+
+
+sub create_blastn_db {
+	my ($inp_sequence,$outDir)= @_;
+	
+	my @fasta_label = split (/\./, basename($inp_sequence));
+	pop @fasta_label;
+	my $index_label = join(".",@fasta_label);
+
+	system("mkdir -p $outDir/blastn_db");
+
+	# my $ = "$bowtie2_build $inp_sequence $outDir/blastn_db/$index_label";
+	my $create_db_comm = "$makeblastdb -in $inp_sequence -dbtype 'nucl' -hash_index -out $outDir/blastn_db/$index_label";
+	
+	if (! glob ("$outDir/blastn_db/$index_label*")){
+		system ("$create_db_comm");
+	}
+
+	return "$outDir/blastn_db/$index_label";
+    
 }
