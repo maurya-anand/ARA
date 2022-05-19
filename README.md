@@ -19,11 +19,12 @@ Please pay attention to the instructions in the installer while setting up the m
 
 -   Activate the environment and run the setup script.
 
-``` bash
-cd AMA-main/
-conda create –-name ama_env –-file requirements.txt -y
-conda activate ama_env
-perl setup.pl
+
+```{r}
+  cd AMA/
+  conda create --name ama_env --file requirements.txt -y
+  conda activate ama_env
+  perl setup.pl
 ```
 
 > *Note:* This tool was tested on "Ubuntu 20.04.4 LTS" with "conda 4.11.0" using the installation procedure mentioned above.
