@@ -1,13 +1,15 @@
 ## AMA : An automatic pipeline for exploration of SRA datasets with sequences as a query
 
 
+
 ### Requirements
 
 -   Bioconda ([Go to the official documentation](https://bioconda.github.io/user/install.html "Getting Started - Bioconda documentation")).
+-   CPAN (for building Perl modules)
 
-It is critical to include the 'bioconda channel' in addition to the other channels as indicated in the [official manual](https://bioconda.github.io/user/install.html#set-up-channels "Bioconda documentation - Set up channels").
+> *Note about Bioconda*: It is critical to include the 'bioconda channel' in addition to the other channels as indicated in the [official manual](https://bioconda.github.io/user/install.html#set-up-channels "Bioconda documentation - Set up channels"). Please pay attention to the instructions in the installer while setting up the miniconda. Use `echo $PATH` to verify whether the 'conda installation' of Python is in your PATH variable.
 
-Please pay attention to the instructions in the installer while setting up the miniconda. Use `echo $PATH` to verify whether the 'conda installation' of Python is in your PATH variable.
+> *Note about CPAN*: Please make sure that you have 'CPAN' properly configured in your system. Run the command **`cpan`** in the terminal to verify and configure CPAN. The setup script in this package utilizes 'cpan' to install the required Perl modules automatically.
 
 ------------------------------------------------------------------------
 
@@ -19,12 +21,11 @@ Please pay attention to the instructions in the installer while setting up the m
 
 -   Activate the environment and run the setup script.
 
-
-```{r}
-  cd AMA/
-  conda create --name ama_env --file requirements.txt -y
-  conda activate ama_env
-  perl setup.pl
+``` bash
+cd AMA/
+conda create --name ama_env --file requirements.txt -y
+conda activate ama_env
+perl setup.pl
 ```
 
 > *Note:* This tool was tested on "Ubuntu 20.04.4 LTS" with "conda 4.11.0" using the installation procedure mentioned above.
