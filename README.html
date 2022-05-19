@@ -1521,13 +1521,21 @@ datasets with sequences as a query</h3>
 <ul>
 <li>Bioconda (<a href="https://bioconda.github.io/user/install.html" title="Getting Started - Bioconda documentation">Go to the official
 documentation</a>).</li>
+<li>MAKE (for building Perl modules through CPAN)</li>
 </ul>
-<p>It is critical to include the ‘bioconda channel’ in addition to the
-other channels as indicated in the <a href="https://bioconda.github.io/user/install.html#set-up-channels" title="Bioconda documentation - Set up channels">official
-manual</a>.</p>
-<p>Please pay attention to the instructions in the installer while
-setting up the miniconda. Use <code>echo $PATH</code> to verify whether
-the ‘conda installation’ of Python is in your PATH variable.</p>
+<blockquote>
+<p><em>Note about Bioconda</em>: It is critical to include the ‘bioconda
+channel’ in addition to the other channels as indicated in the <a href="https://bioconda.github.io/user/install.html#set-up-channels" title="Bioconda documentation - Set up channels">official manual</a>.
+Please pay attention to the instructions in the installer while setting
+up the miniconda. Use <code>echo $PATH</code> to verify whether the
+‘conda installation’ of Python is in your PATH variable.</p>
+</blockquote>
+<blockquote>
+<p><em>Note about MAKE</em>: ‘make’ is an essential tool for building
+Perl modules. Please make sure that you have ‘make’ installed in your
+system. The setup script provided in this package utilizes ‘cpan’ to
+install the required Perl modules automatically.</p>
+</blockquote>
 <hr />
 </div>
 <div id="installation" class="section level3">
@@ -1542,8 +1550,8 @@ the SRA repository.</p></li>
 create a virtual environment.</p></li>
 <li><p>Activate the environment and run the setup script.</p></li>
 </ul>
-<pre class="bash"><code>cd AMA-main/
-conda create –-name ama_env –-file requirements.txt -y
+<pre class="bash"><code>cd AMA/
+conda create --name ama_env --file requirements.txt -y
 conda activate ama_env
 perl setup.pl</code></pre>
 <blockquote>

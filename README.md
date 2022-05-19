@@ -5,11 +5,11 @@
 ### Requirements
 
 -   Bioconda ([Go to the official documentation](https://bioconda.github.io/user/install.html "Getting Started - Bioconda documentation")).
--   CPAN (for building Perl modules)
+-   MAKE (for building Perl modules through CPAN)
 
 > *Note about Bioconda*: It is critical to include the 'bioconda channel' in addition to the other channels as indicated in the [official manual](https://bioconda.github.io/user/install.html#set-up-channels "Bioconda documentation - Set up channels"). Please pay attention to the instructions in the installer while setting up the miniconda. Use `echo $PATH` to verify whether the 'conda installation' of Python is in your PATH variable.
 
-> *Note about CPAN*: Please make sure that you have 'CPAN' properly configured in your system. Run the command **`cpan`** in the terminal to verify and configure CPAN. The setup script in this package utilizes 'cpan' to install the required Perl modules automatically.
+> *Note about MAKE*: 'make' is an essential tool for building Perl modules. Please make sure that you have 'make' installed in your system. The setup script provided in this package utilizes 'cpan' to install the required Perl modules automatically.
 
 ------------------------------------------------------------------------
 
