@@ -1,18 +1,21 @@
 ## AMA : An automatic pipeline for exploration of SRA datasets with sequences as a query
 
 
-
 ### Requirements
 
 -   Bioconda ([Go to the official documentation](https://bioconda.github.io/user/install.html "Getting Started - Bioconda documentation")).
 
-> *Note*: It is critical to include the 'bioconda channel' in addition to the other channels as indicated in the [official manual](https://bioconda.github.io/user/install.html#set-up-channels "Bioconda documentation - Set up channels"). Please pay attention to the instructions in the installer while setting up the miniconda. Use `echo $PATH` to verify whether the 'conda installation' of Python is in your PATH variable.
+> *Note*: **It is important to include the 'bioconda channel' in addition to the other channels as indicated in the [official manual](https://bioconda.github.io/user/install.html#set-up-channels "Bioconda documentation - Set up channels")**.
+>
+> Use the commands `conda config –add channels defaults`, `conda config –add channels bioconda` and `conda config –add channels conda-forge` respectively to setup the channels as suggested in the documentation.
+>
+> Please pay attention to the instructions in the installer while setting up the miniconda. Use `echo $PATH` to verify whether the 'conda installation' of Python is in your PATH variable.
 
 ------------------------------------------------------------------------
 
 ### Installation
 
--   Please download and extract the zip file into the desired location before starting the setup. Before downloading and processing fastq files with the pipeline, please make sure the system has enough disk space available for the data you wish to retrieve and analyse from the SRA repository.
+-   Please download and extract the zip file into the desired location before starting the setup. Before downloading and processing fastq files with the pipeline, please make sure the system has enough disk space available for the data you wish to retrieve and analyse from the SRA repository. After installation, the conda environment consumes approximately 1 GB of disk space.
 
 -   Use the `requirements.txt` provided in the package and create a virtual environment.
 
@@ -27,7 +30,9 @@ perl setup.pl
 
 > *Note:* This tool was tested on "Ubuntu 20.04.4 LTS" with "conda 4.11.0" using the installation procedure mentioned above.
 
-Please refer the Troubleshooting section below for help.
+Please be patient because downloading and configuring the tools/modules may take several minutes.
+
+Please refer the Troubleshooting section in case of any installation related issues.
 
 ------------------------------------------------------------------------
 
@@ -37,7 +42,7 @@ Please refer the Troubleshooting section below for help.
 
 -   Minimal usage example: `perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa`
 
-------------------------------------------------------------------------
+> *Note*: The user can delete the contents of `./results/` directory after testing the tool using the example mentioned above.
 
 ### Configuration file
 
@@ -102,33 +107,21 @@ The user can choose between *blastn* or *bowtie2* by changing the 'execute flag'
 -   Perl modules:
 
     -   Config::Simple
-
     -   Parallel::ForkManager
-
     -   Log::Log4perl
-
     -   Getopt::Long
-
     -   Text::CSV
-
     -   Text::Fuzzy
 
 -   Tools:
 
     -   [NCBI EDirect utilities](https://www.ncbi.nlm.nih.gov/books/NBK179288/)
-
     -   [NCBI SRA Toolkit](https://www.ncbi.nlm.nih.gov/home/tools/)
-
     -   [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/download.html#fastqc)
-
     -   [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic)
-
     -   [FASTX-Toolkit](http://hannonlab.cshl.edu/fastx_toolkit/)
-
     -   [NCBI Blast](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-
     -   [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
-
     -   [Samtools](http://www.htslib.org/download/)
 
 ------------------------------------------------------------------------

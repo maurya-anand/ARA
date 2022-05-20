@@ -262,7 +262,7 @@ if (lc $run_mode eq "summary"){
 }
 
 
-$logger->info("Analysis completed");
+$logger->info("\n\nAnalysis completed");
 
 ## Takes the metadata table (parsed uncategorised) and executes blast pipeline on complete dataset from each run
 ## Generates a combined blast hits percentage table after analysis
@@ -396,6 +396,9 @@ sub screen_raw_data {
 		
 		print SCREENED join("\t",@runInfoHeaders)."\n";
 
+		my $passed_runs=0;
+		my $total_runs = scalar %runIDs;
+
 		## collect stats for each run from the metadata
 		foreach my $run (keys %runIDs){
 			my $blast_stats; my $bowtie_stats;
@@ -411,6 +414,7 @@ sub screen_raw_data {
 				
 				if (($blStatsRec[-1] eq "PASS") or ($bowStatsRec[-1] eq "PASS")){
 					print SCREENED "$runIDs{$run}{'row'}\n";
+					$passed_runs+=1;
 				}
 			}
 			elsif ($blastn_exec_flag == 1){
@@ -422,6 +426,7 @@ sub screen_raw_data {
 				
 				if (($blStatsRec[-1] eq "PASS")){
 					print SCREENED "$runIDs{$run}{'row'}\n";
+					$passed_runs+=1;
 				}
 			}
 			else{
@@ -433,11 +438,14 @@ sub screen_raw_data {
 				
 				if (($bowStatsRec[-1] eq "PASS")){
 					print SCREENED "$runIDs{$run}{'row'}\n";
+					$passed_runs+=1;
 				}
 			}
 		}
 		close STATS;
 		$logger->info("Pipeline : RAW data screening stats : $statsFile");
+		$logger->info("Pipeline : Summary : Total runs processed: $total_runs. Total number of passed runs: $passed_runs");
+
 	}
 }
 
@@ -550,7 +558,9 @@ sub create_bowtie2_index {
 
 	system("mkdir -p $outDir/bowtie2_index");
 
-	my $create_index_comm = "$bowtie2_build $inp_sequence $outDir/bowtie2_index/$index_label";
+	my $bowtie2_indexLogStdout = "$outDir/bowtie2_index.stdout.txt";
+
+	my $create_index_comm = "$bowtie2_build $inp_sequence $outDir/bowtie2_index/$index_label >> $bowtie2_indexLogStdout 2>&1";
 	if (! glob ("$outDir/bowtie2_index/$index_label*")){
 		system ("$create_index_comm");
 	}
@@ -569,8 +579,10 @@ sub create_blastn_db {
 
 	system("mkdir -p $outDir/blastn_db");
 
+	my $blastn_dbLogStdout = "$outDir/makeblastdb.stdout.txt";
+
 	# my $ = "$bowtie2_build $inp_sequence $outDir/blastn_db/$index_label";
-	my $create_db_comm = "$makeblastdb -in $inp_sequence -dbtype 'nucl' -hash_index -out $outDir/blastn_db/$index_label";
+	my $create_db_comm = "$makeblastdb -in $inp_sequence -dbtype 'nucl' -hash_index -out $outDir/blastn_db/$index_label >> $blastn_dbLogStdout 2>&1";
 	
 	if (! glob ("$outDir/blastn_db/$index_label*")){
 		system ("$create_db_comm");

@@ -601,15 +601,20 @@ sub download_sample {
 	my $sumStat=0;
 	my $fraction;
 
-    my $dumpCommPE="$fastq_dump $id --split-files -O $outPath/";
-    my $dumpCommSE="$fastq_dump $id -O $outPath/";
+	my $dumpCommPELogStdout = "$outPath/fastq_dump.stdout.txt";
+	my $dumpCommSELogStdout = "$outPath/fastq_dump.stdout.txt";
+
+    my $dumpCommPE="$fastq_dump $id --split-files -O $outPath/ >> $dumpCommPELogStdout 2>&1";
+    my $dumpCommSE="$fastq_dump $id -O $outPath/ >> $dumpCommSELogStdout 2>&1";
+
+
 
     if ($fastq_dump_perc){
 
         my $fraction=int (($fastq_dump_perc/100)*$num_spots);
         $logger->info("Fastq dump : Number of spots to be downloaded : $fraction");
-        $dumpCommPE="$fastq_dump -X $fraction $id --split-files -O $outPath/";
-        $dumpCommSE="$fastq_dump -X $fraction $id -O $outPath/";
+        $dumpCommPE="$fastq_dump -X $fraction $id --split-files -O $outPath/ >> $dumpCommPELogStdout 2>&1";
+        $dumpCommSE="$fastq_dump -X $fraction $id -O $outPath/ >> $dumpCommSELogStdout 2>&1";
     }
 
 	if ($samType eq "PAIRED"){
