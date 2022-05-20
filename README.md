@@ -5,11 +5,8 @@
 ### Requirements
 
 -   Bioconda ([Go to the official documentation](https://bioconda.github.io/user/install.html "Getting Started - Bioconda documentation")).
--   MAKE (for building Perl modules through CPAN)
 
-> *Note about Bioconda*: It is critical to include the 'bioconda channel' in addition to the other channels as indicated in the [official manual](https://bioconda.github.io/user/install.html#set-up-channels "Bioconda documentation - Set up channels"). Please pay attention to the instructions in the installer while setting up the miniconda. Use `echo $PATH` to verify whether the 'conda installation' of Python is in your PATH variable.
-
-> *Note about MAKE*: 'make' is an essential tool for building Perl modules. Please make sure that you have 'make' installed in your system. The setup script provided in this package utilizes 'cpan' to install the required Perl modules automatically.
+> *Note*: It is critical to include the 'bioconda channel' in addition to the other channels as indicated in the [official manual](https://bioconda.github.io/user/install.html#set-up-channels "Bioconda documentation - Set up channels"). Please pay attention to the instructions in the installer while setting up the miniconda. Use `echo $PATH` to verify whether the 'conda installation' of Python is in your PATH variable.
 
 ------------------------------------------------------------------------
 
@@ -86,15 +83,17 @@ The user can choose between *blastn* or *bowtie2* by changing the 'execute flag'
 
     Use **`conda list`** command to verify whether the packages mentioned in the `requirements.txt` are successfully installed into your environment.
 
-> *Note:* The `requirements.txt` provided in this package was exported from `conda 4.11.0` installation running on `Ubuntu 20.04.4 LTS`.
+    > *Note:* The `requirements.txt` provided in this package was exported from `conda 4.11.0` installation running on `Ubuntu 20.04.4 LTS`.
 
--   In case of any missing tool/ conflicting dependencies in the environment, the user can try using **`conda search <tool name>`** command to find the supported version of the tool and then manually install it by typing **`conda install <tool name>`** inside the environment. Please refer the official [troubleshooting guide](https://conda.io/projects/conda/en/latest/user-guide/troubleshooting.html "User guide » Troubleshooting") for further help.
+    In case of any missing tool/ conflicting dependencies in the environment, the user can try using **`conda search <tool name>`** command to find the supported version of the tool and then manually install it by typing **`conda install <tool name>`** inside the environment. Please refer the official [troubleshooting guide](https://conda.io/projects/conda/en/latest/user-guide/troubleshooting.html "User guide » Troubleshooting") for further help.
 
-> *Note:* On macOS and Linux, the supported tools and their dependencies aren't always the same. Even when all of the requirements are completely aligned, the set of available versions isn't necessarily the same. User may try setting up the environment using any of the supplementary `requirements-*.txt` provided in the `src/main/resources/` directory.
+    > *Note:* On macOS and Linux, the supported tools and their dependencies aren't always the same. Even when all of the requirements are completely aligned, the set of available versions isn't necessarily the same. User may try setting up the environment using any of the supplementary `requirements-*.txt` provided in the `src/main/resources/` directory.
 
--   Error using CPAN modules:
+-   Error installing Perl modules:
 
-    Before beginning the setup, Mac OS users must ensure that they have write permission to the `/Users/\*/.cpan/` directory, and Linux users must ensure that their CPAN is properly configured.
+    Mac OS users must ensure that they have write permission to the `/Users/\*/.cpan/` directory, and Linux users must ensure that their CPAN is properly configured.
+
+    > *Note about MAKE*: 'make' is an essential tool for building Perl modules. Please make sure that you have 'make' installed in your system. The setup script provided in this package utilizes 'cpan' to build the required Perl modules automatically.
 
 ------------------------------------------------------------------------
 
