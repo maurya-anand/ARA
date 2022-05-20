@@ -1,6 +1,7 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: osx-64
+make=4.3=h22f3db7_1
 python=3.9.12=h1cc4136_1_cpython
 blast=2.12.0=h0370960_3
 bowtie2=2.4.5=py39he245752_2

@@ -1,6 +1,7 @@
 # This file may be used to create an environment using:
 # $ conda create --name env --file requirements.txt -y
 # platform: linux-64
+make
 python=3.6.10
 blast
 bowtie2
