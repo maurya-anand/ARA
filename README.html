@@ -1578,16 +1578,22 @@ example mentioned above.</p>
 </div>
 <div id="configuration-file" class="section level3">
 <h3>Configuration file</h3>
-<p>Configuration file <code>conf.txt</code> requires the absolute path
-of the tools incorporated into the pipeline.</p>
-<p>The user can choose between <em>blastn</em> or <em>bowtie2</em> by
-changing the ‘execute flag’ to either 0 or 1 in the configuration file
-while leaving the rest of the parameters to default values. By default,
-both the tools are enabled <em>ie</em>. <code>execute = 1</code>.</p>
+<p>The configuration file <code>conf.txt</code> is automatically
+generated during the installation by setup script. It contains certain
+default parameters as well as the location to the executable binaries of
+the <a href="#list-of-perl-modules-and-tools-incorporated-in-the-pipeline">tools</a>
+incorporated in the pipeline.</p>
+<p>The user can modify the default parameters in <code>conf.txt</code>
+and pass it to the pipeline as an input. For example, the user can
+choose between <em>blastn</em> or <em>bowtie2</em> by changing the
+‘execute flag’ to either 0 or 1 in the configuration file while leaving
+the rest of the parameters to default values. By default, both the tools
+are enabled <em>ie</em>. <code>execute = 1</code>.</p>
 <blockquote>
 <p><em>Note:</em> If the user wishes to use a different installation
-than Bioconda, the user can manually install and specify the path of the
-tools in the configuration.</p>
+than Bioconda, the user can manually install the required <a href="#list-of-perl-modules-and-tools-incorporated-in-the-pipeline">tools</a>
+and specify the absolute path of the executable binaries in the
+configuration.</p>
 </blockquote>
 <hr />
 </div>

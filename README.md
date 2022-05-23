@@ -1,6 +1,7 @@
 ## AMA : An automatic pipeline for exploration of SRA datasets with sequences as a query
 
 
+
 ### Requirements
 
 -   Bioconda ([Go to the official documentation](https://bioconda.github.io/user/install.html "Getting Started - Bioconda documentation")).
@@ -46,11 +47,11 @@ Please refer the Troubleshooting section in case of any installation related iss
 
 ### Configuration file
 
-Configuration file `conf.txt` requires the absolute path of the tools incorporated into the pipeline.
+The configuration file `conf.txt` is automatically generated during the installation by setup script. It contains certain default parameters as well as the location to the executable binaries of the [tools](#list-of-perl-modules-and-tools-incorporated-in-the-pipeline) incorporated in the pipeline.
 
-The user can choose between *blastn* or *bowtie2* by changing the 'execute flag' to either 0 or 1 in the configuration file while leaving the rest of the parameters to default values. By default, both the tools are enabled *ie*. `execute = 1`.
+The user can modify the default parameters in `conf.txt` and pass it to the pipeline as an input. For example, the user can choose between *blastn* or *bowtie2* by changing the 'execute flag' to either 0 or 1 in the configuration file while leaving the rest of the parameters to default values. By default, both the tools are enabled *ie*. `execute = 1`.
 
-> *Note:* If the user wishes to use a different installation than Bioconda, the user can manually install and specify the path of the tools in the configuration.
+> *Note:* If the user wishes to use a different installation than Bioconda, the user can manually install the required [tools](#list-of-perl-modules-and-tools-incorporated-in-the-pipeline) and specify the absolute path of the executable binaries in the configuration.
 
 ------------------------------------------------------------------------
 
