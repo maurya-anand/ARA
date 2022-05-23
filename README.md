@@ -8,7 +8,7 @@
 
 > *Note*: **It is important to include the 'bioconda channel' in addition to the other channels as indicated in the [official manual](https://bioconda.github.io/user/install.html#set-up-channels "Bioconda documentation - Set up channels")**.
 >
-> Use the commands `conda config –add channels defaults`, `conda config –add channels bioconda` and `conda config –add channels conda-forge` respectively to setup the channels as suggested in the documentation.
+> Use the commands `conda config --add channels defaults`, `conda config --add channels bioconda` and `conda config --add channels conda-forge` respectively to setup the channels as suggested in the documentation.
 >
 > Please pay attention to the instructions in the installer while setting up the miniconda. Use `echo $PATH` to verify whether the 'conda installation' of Python is in your PATH variable.
 
