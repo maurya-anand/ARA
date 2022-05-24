@@ -83,7 +83,7 @@ The user can modify the default parameters in `conf.txt` and pass it to the pipe
 
 ------------------------------------------------------------------------
 
-### Troubleshooting {#troubleshooting}
+### Troubleshooting
 
 -   Errors related to Bioconda:
 
@@ -103,7 +103,7 @@ The user can modify the default parameters in `conf.txt` and pass it to the pipe
 
 ------------------------------------------------------------------------
 
-### List of Perl modules and tools incorporated in the pipeline {#list-of-perl-modules-and-tools-incorporated-in-the-pipeline}
+### List of Perl modules and tools incorporated in the pipeline
 
 -   Perl modules:
 
