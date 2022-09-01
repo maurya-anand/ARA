@@ -1,19 +1,5 @@
----
-title: "AMA.v1.4.0"
-subtitle: "An automatic pipeline for exploration of SRA datasets with sequences as a query"
-fontsize: 12pt
-urlcolor: cyan
-output:
-  html_document:
-    toc: yes
-    toc_float: yes
-  word_document:
-    toc: no
-  pdf_document:
-    toc: no
-    highlight: tango
----
-
+## AMA.v1.4.0
+### An automatic pipeline for exploration of SRA datasets with sequences as a query
 ------------------------------------------------------------------------
 
 ### Requirements
