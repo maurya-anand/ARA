@@ -1,5 +1,7 @@
-## AMA.v1.5.0
-### An automatic pipeline for exploration of SRA datasets with sequences as a query
+------------------------------------------------------------------------
+
+## AMA : An automatic pipeline for exploration of SRA datasets with sequences as a query
+
 ------------------------------------------------------------------------
 
 ### Requirements
