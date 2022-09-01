@@ -1,6 +1,20 @@
-## AMA : An automatic pipeline for exploration of SRA datasets with sequences as a query
+---
+title: "AMA.v1.4.0"
+subtitle: "An automatic pipeline for exploration of SRA datasets with sequences as a query"
+fontsize: 12pt
+urlcolor: cyan
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+  word_document:
+    toc: no
+  pdf_document:
+    toc: no
+    highlight: tango
+---
 
-
+------------------------------------------------------------------------
 
 ### Requirements
 
@@ -31,7 +45,7 @@ perl setup.pl
 
 > *Note:* This tool was tested on "Ubuntu 20.04.4 LTS" with "conda 4.11.0" using the installation procedure mentioned above.
 
-Please be patient because downloading and configuring the tools/modules may take several minutes.
+Please be patient because downloading and configuring the tools/modules may take several minutes. The warnings that appear during the installation of certain Perl modules can be ignored by users.
 
 Please refer the [Troubleshooting](#troubleshooting) section in case of any installation related issues.
 
@@ -83,7 +97,7 @@ The user can modify the default parameters in `conf.txt` and pass it to the pipe
 
 ------------------------------------------------------------------------
 
-### Troubleshooting
+### Troubleshooting {#troubleshooting}
 
 -   Errors related to Bioconda:
 
@@ -103,7 +117,7 @@ The user can modify the default parameters in `conf.txt` and pass it to the pipe
 
 ------------------------------------------------------------------------
 
-### List of Perl modules and tools incorporated in the pipeline
+### List of Perl modules and tools incorporated in the pipeline {#list-of-perl-modules-and-tools-incorporated-in-the-pipeline}
 
 -   Perl modules:
 
@@ -113,6 +127,7 @@ The user can modify the default parameters in `conf.txt` and pass it to the pipe
     -   Getopt::Long
     -   Text::CSV
     -   Text::Fuzzy
+    -   Text::Unidecode
 
 -   Tools:
 
