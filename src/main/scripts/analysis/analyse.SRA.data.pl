@@ -77,19 +77,19 @@ else {
 
 
  
-
-my $fastq_dump      = $tool_config_obj->param('toolPath.fastq_dump');
-my $fastqc          = $tool_config_obj->param('toolPath.fastqc');
-my $trimmomatic     = $tool_config_obj->param('toolPath.trimmomatic');
-my $adapters_PE     = $tool_config_obj->param('toolPath.adapters_PE');
-my $adapters_SE     = $tool_config_obj->param('toolPath.adapters_SE');
-my $fastx_collapser = $tool_config_obj->param('toolPath.fastx_collapser');
-my $blastn          = $tool_config_obj->param('toolPath.blastn');
-my $makeblastdb		= $tool_config_obj->param('toolPath.makeblastdb');
-my $bowtie2         = $tool_config_obj->param('toolPath.bowtie2');
-my $bowtie2_build	= $tool_config_obj->param('toolPath.bowtie2-build');
-my $samtools        = $tool_config_obj->param('toolPath.samtools');
-my $pipeline_ver    = $tool_config_obj->param('pipeline.version');
+my $ncbi_edirect_path	= $tool_config_obj->param('toolPath.ncbi_edirect');
+my $fastq_dump      	= $tool_config_obj->param('toolPath.fastq_dump');
+my $fastqc          	= $tool_config_obj->param('toolPath.fastqc');
+my $trimmomatic 		= $tool_config_obj->param('toolPath.trimmomatic');
+my $adapters_PE     	= $tool_config_obj->param('toolPath.adapters_PE');
+my $adapters_SE 		= $tool_config_obj->param('toolPath.adapters_SE');
+my $fastx_collapser 	= $tool_config_obj->param('toolPath.fastx_collapser');
+my $blastn          	= $tool_config_obj->param('toolPath.blastn');
+my $makeblastdb			= $tool_config_obj->param('toolPath.makeblastdb');
+my $bowtie2         	= $tool_config_obj->param('toolPath.bowtie2');
+my $bowtie2_build		= $tool_config_obj->param('toolPath.bowtie2-build');
+my $samtools        	= $tool_config_obj->param('toolPath.samtools');
+my $pipeline_ver    	= $tool_config_obj->param('pipeline.version');
 
 ## Loading tool parameters
 my $fastqc_threads             = $tool_config_obj->param('fastqc.threads');
@@ -172,6 +172,44 @@ else {
 	system("mkdir -p $output_dir");
 }
 
+
+# fallback method
+my $sra_url;
+
+my $sra_run_info_str = `$ncbi_edirect_path/efetch -db sra -id $sra_sample_id -format runinfo |tail -n1`;
+chomp $sra_run_info_str;
+# Run,ReleaseDate,LoadDate,spots,bases,spots_with_mates,avgLength,size_MB,AssemblyName,download_path,Experiment,LibraryName,LibraryStrategy,LibrarySelection,LibrarySource,LibraryLayout,InsertSize,InsertDev,Platform,Model,SRAStudy,BioProject,Study_Pubmed_id,ProjectID,Sample,BioSample,SampleType,TaxID,ScientificName,SampleName,g1k_pop_code,source,g1k_analysis_group,Subject_ID,Sex,Disease,Tumor,Affection_Status,Analyte_Type,Histological_Type,Body_Site,CenterName,Submission,dbgap_study_accession,Consent,RunHash,ReadHash
+# SRR12548243,2021-04-07 17:04:56,2020-08-30 19:21:08,1051,79876,1051,76,0,,https://sra-pub-run-odp.s3.amazonaws.com/sra/SRR12548243/SRR12548243,SRX9036864,,RNA-Seq,cDNA,TRANSCRIPTOMIC,PAIRED,0,0,ILLUMINA,NextSeq 500,SRP279357,PRJNA660263,3,660263,SRS7287368,SAMN15943290,simple,3702,Arabidopsis thaliana,GSM4755568,,,,,,,no,,,,,GEO,SRA1119003,,public,D21CE888E8EF2BA2AE78A4FE7577C51F,9EE437AA19CFF2DAD503DF6FDB4EC570
+
+if ($sra_run_info_str){
+	my @tmp=split(",",$sra_run_info_str);
+	
+	my $samType_re_check = $tmp[15];
+	my $sra_url_check = $tmp[9];
+	my $run_spots_re_check = $tmp[3];
+
+	if ($samType_re_check){
+		if($sample_type ne $samType_re_check){
+			$logger->info("Using corrected sample type ($samType_re_check instead of $sample_type) for $sra_sample_id");
+			$sample_type = $samType_re_check;
+		}
+	}
+	if ($run_spots_re_check){
+		if($run_spots_re_check ne $num_spots){
+			$logger->info("Using corrected number of spots ($run_spots_re_check instead of $num_spots) for $sra_sample_id");
+			$num_spots = $run_spots_re_check;
+		}
+	}
+	if ($sra_url_check =~ /^http/){
+		$sra_url = $sra_url_check;
+	}
+	else {
+		$sra_url="https://sra-pub-run-odp.s3.amazonaws.com/sra/$sra_sample_id/$sra_sample_id";
+		# sratoolkit.2.10.5-ubuntu64/bin/srapath SRR000001 returns https://sra-pub-run-odp.s3.amazonaws.com/sra/SRR000001/SRR000001
+	}
+}
+
+
 ## Execute fastq dump ###############################################################
 if ($fastq_dump_exec_flag == 1 ) {
     
@@ -181,10 +219,12 @@ if ($fastq_dump_exec_flag == 1 ) {
 	my $dump_process_flag = download_sample($sra_sample_id, $sample_type, $output_dir);
 
 	if ($dump_process_flag == 0){
-
 		$logger->error("Fastq dump failed for $sra_sample_id");
-
-		exit;
+		my $full_sra_download_flag = download_sample_full_sra ($sra_sample_id, $sample_type, $output_dir);
+		if ($full_sra_download_flag ==0){
+			$logger->error("Unable to retrive raw data for $sra_sample_id");
+			exit;
+		}
 	}
 }
 
@@ -599,7 +639,6 @@ sub download_sample {
 	my ($id,$samType,$outPath)= @_;
 	my $dumpComm;
 	my $sumStat=0;
-	my $fraction;
 
 	my $dumpCommPELogStdout = "$outPath/fastq_dump.stdout.txt";
 	my $dumpCommSELogStdout = "$outPath/fastq_dump.stdout.txt";
@@ -610,7 +649,6 @@ sub download_sample {
 
 
     if ($fastq_dump_perc){
-
         my $fraction=int (($fastq_dump_perc/100)*$num_spots);
         $logger->info("Fastq dump : Number of spots to be downloaded : $fraction");
         $dumpCommPE="$fastq_dump -X $fraction $id --split-files -O $outPath/ >> $dumpCommPELogStdout 2>&1";
@@ -644,7 +682,7 @@ sub download_sample {
 				$sumStat=0;
                 $logger->info("Executing: Fastq dump");
 				$logger->info("Command: $dumpCommPE : attempt: $attempt");
-				system("$dumpCommPE");
+				# system("$dumpCommPE");
 			}
 		}
 	}
@@ -670,11 +708,108 @@ sub download_sample {
 
                 $logger->info("Executing: Fastq dump");
 				$logger->info("Command: $dumpCommSE : attempt: $attempt");
-				system("$dumpCommSE");
+				# system("$dumpCommSE");
 			}
 		}
 	}
     # $logger->info("Fastq Dump: Completed");
+	return ($sumStat);
+}
+
+
+
+sub download_sample_full_sra {
+
+	my ($id,$samType,$outPath)= @_;
+
+	my $dumpComm;
+	my $sumStat=0;
+	my $sraWgetFlag=0;
+
+	my $wgetLogStdout = "$outPath/wget.full.sra.stdout.txt";
+	my $sra_file;
+
+	for (my $attempt = 1; $attempt<=3; $attempt++){
+		
+		if (my @files = glob("$outPath/sra/$id*")) {
+			system ("cp $files[0] $outPath/$id");
+			system ("rm $files[0]");
+			$sra_file = "$outPath/$id";
+			last;
+		}
+		
+		else{
+			$logger->info("Retrieving the complete SRA file: $sra_url : attempt: $attempt");
+			my $get_sra_comm= `wget -o $wgetLogStdout -c $sra_url -P $outPath/sra/`;
+		}
+	}
+	
+	if(-s "$sra_file"){
+		$logger->info("Successfully retieved sra file from $sra_url");
+	}
+	
+	else {
+		$logger->error("Failed to retieve sra file from $sra_url");
+	}
+	
+	my $dumpCommPELogStdout = "$outPath/fastq_dump.stdout.txt";
+	my $dumpCommSELogStdout = "$outPath/fastq_dump.stdout.txt";
+
+    my $dumpCommPE="$fastq_dump $sra_file --split-files -O $outPath/ >> $dumpCommPELogStdout 2>&1";
+    my $dumpCommSE="$fastq_dump $sra_file -O $outPath/ >> $dumpCommSELogStdout 2>&1";
+
+	if ($fastq_dump_perc){
+		my $fraction=int (($fastq_dump_perc/100)*$num_spots);
+        $logger->info("Fastq dump : Number of spots to be extracted : $fraction");
+        $dumpCommPE="$fastq_dump -X $fraction $sra_file --split-files -O $outPath/ >> $dumpCommPELogStdout 2>&1";
+        $dumpCommSE="$fastq_dump -X $fraction $sra_file -O $outPath/ >> $dumpCommSELogStdout 2>&1";
+    }
+
+	# print "$dumpCommPE\n$dumpCommSE\n";
+	if ($samType eq "PAIRED"){
+
+        my $fastqn1="$outPath/$id\_1.fastq";
+		my $fastqn2="$outPath/$id\_2.fastq";
+		my $fastqn3="$outPath/$id\_3.fastq";
+
+		if((! -s "$fastqn1") or (! -s "$fastqn2")){
+			$logger->info("Executing: Fastq dump");
+			$logger->info("Command: $dumpCommPE");
+			system("$dumpCommPE");	
+		}
+		my $flagR1=0; my $flagR2=0; my $flagR3=0;	
+				
+		if(-s "$fastqn1"){$flagR1=1;}
+		if(-s "$fastqn2"){$flagR2=1;}
+		if(-s "$fastqn3"){$flagR3=1;}
+		
+		$sumStat=$flagR1 + $flagR2 + $flagR3;
+
+		if ( $sumStat >=2 ){
+			$logger->info("Fastq Dump: Completed");
+		}
+	}
+	
+	if ($samType eq "SINGLE") { # for SE samples
+
+		my $fastqn1="$outPath/$id.fastq";
+
+		if(! -s "$fastqn1"){
+			$logger->info("Executing: Fastq dump");
+			$logger->info("Command: $dumpCommSE");
+			system("$dumpCommSE");
+		}
+		
+		if (-s "$fastqn1") {
+			$logger->info("Fastq Dump: Completed");
+			$sumStat=1;
+		}
+	}
+	
+	if (-s "$sra_file"){
+		system("rm $sra_file");
+	}
+
 	return ($sumStat);
 }
 
