@@ -10,18 +10,15 @@ my $host = hostname;
 my $base_path = $Bin;
 
 my $tools_path = "$base_path/src/main/resources/tools/";
-#my $tools_path = "$base_path/tool_test";
 system("mkdir -p $tools_path");
 system("rm -rf $tools_path/*");
 
 # required perl modules
-my @perl_modules=('Config::Simple', 'Parallel::ForkManager', 'Log::Log4perl', 'Getopt::Long', 'Text::CSV', 'Text::Fuzzy');
+my @perl_modules=('Config::Simple', 'Parallel::ForkManager', 'Log::Log4perl', 'Getopt::Long', 'Text::CSV', 'Text::Fuzzy','Text::Unidecode');
 
 # required binaries
-# my %tools = ('esearch', 0, 'efetch', 0, 'xtract' , 0, 'fastq-dump', 0, 'fastqc', 0, 'fastx_collapser', 0, 'blastn', 0, 'bowtie2', 0, 'samtools', 0);
 my %tools = ('esearch', '-', 'efetch', '-', 'xtract' , '-', 'fastx_collapser', '-', 'samtools', '-');
 
-# my $out_conf= "$base_path/conf.$host.txt";
 my $out_conf= "$base_path/conf.txt";
 
 my $trimmomaticURL = "http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.39.zip";
@@ -43,8 +40,6 @@ sub check_exists_command {
 
 sub install_perl_module {
     my ($module) = (@_);
-    # print "--$module--\n";
-    
     if ($module eq '') {
         print "No Module name provided. Installer will exit.\n";
         exit();
@@ -54,12 +49,13 @@ sub install_perl_module {
         require $toload;
         $module->import();
     };
-    unless($@) {
-        print "\n\nModule $module exists. Skipping installation\n";
-        # exit();
+    if($@) {
+        print "Installing $module from CPAN: \n";
+        system("yes | perl -MCPAN -e 'install $module'");
     }
-    print "Installing $module from CPAN: \n";
-    system("yes | perl -MCPAN -e 'install $module'");
+    else{
+        print "\n\nModule $module exists. Skipping installation\n";
+    }
 }
 
 foreach my $mod(@perl_modules){
@@ -170,6 +166,12 @@ if ($fastqc_path eq ""){
     }
 }
 
+my $wget_path = `which wget`;
+chomp $wget_path;
+if ($wget_path eq ''){
+    print "ERROR : Unable to find wget in the path. Please install wget utility in your system before starting the analysis\n";
+}
+
 foreach my $binary(keys %tools){
     my $tool_path = `which $binary`;
     chomp $tool_path;
@@ -210,7 +212,7 @@ my $config = <<"CONFIG";
 [pipeline]
 
 threads = 1
-version = 1.4.0
+version = 1.5.0
 ########################################## end of pipeline config #####################################################
 
 [fastq_dump]
