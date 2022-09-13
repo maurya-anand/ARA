@@ -200,7 +200,7 @@ if ($sra_run_info_str){
 			$num_spots = $run_spots_re_check;
 		}
 	}
-	if ($sra_url_check =~ /^http/){
+	if (($sra_url_check =~ /^http/) && ($sra_url_check =~ m/$sra_sample_id/)){
 		$sra_url = $sra_url_check;
 	}
 	else {
@@ -721,22 +721,22 @@ sub download_sample {
 sub download_sample_full_sra {
 
 	my ($id,$samType,$outPath)= @_;
-
+	
 	my $dumpComm;
 	my $sumStat=0;
 	my $sraWgetFlag=0;
-
+	
 	my $wgetLogStdout = "$outPath/wget.full.sra.stdout.txt";
 	my $sra_file;
-
+	
 	for (my $attempt = 1; $attempt<=3; $attempt++){
 		
 		if (my @files = glob("$outPath/sra/$id*")) {
 			system ("cp $files[0] $outPath/$id");
-			system ("rm $files[0]");
+			system("rm $outPath/sra/*");
 			$sra_file = "$outPath/$id";
 			last;
-		}
+		}	
 		
 		else{
 			$logger->info("Retrieving the complete SRA file: $sra_url : attempt: $attempt");
@@ -754,37 +754,37 @@ sub download_sample_full_sra {
 	
 	my $dumpCommPELogStdout = "$outPath/fastq_dump.stdout.txt";
 	my $dumpCommSELogStdout = "$outPath/fastq_dump.stdout.txt";
-
-    my $dumpCommPE="$fastq_dump $sra_file --split-files -O $outPath/ >> $dumpCommPELogStdout 2>&1";
+	
+	my $dumpCommPE="$fastq_dump $sra_file --split-files -O $outPath/ >> $dumpCommPELogStdout 2>&1";
     my $dumpCommSE="$fastq_dump $sra_file -O $outPath/ >> $dumpCommSELogStdout 2>&1";
-
+	
 	if ($fastq_dump_perc){
 		my $fraction=int (($fastq_dump_perc/100)*$num_spots);
         $logger->info("Fastq dump : Number of spots to be extracted : $fraction");
         $dumpCommPE="$fastq_dump -X $fraction $sra_file --split-files -O $outPath/ >> $dumpCommPELogStdout 2>&1";
         $dumpCommSE="$fastq_dump -X $fraction $sra_file -O $outPath/ >> $dumpCommSELogStdout 2>&1";
     }
-
-	# print "$dumpCommPE\n$dumpCommSE\n";
+	
 	if ($samType eq "PAIRED"){
 
         my $fastqn1="$outPath/$id\_1.fastq";
 		my $fastqn2="$outPath/$id\_2.fastq";
 		my $fastqn3="$outPath/$id\_3.fastq";
-
+		
 		if((! -s "$fastqn1") or (! -s "$fastqn2")){
 			$logger->info("Executing: Fastq dump");
 			$logger->info("Command: $dumpCommPE");
 			system("$dumpCommPE");	
 		}
+		
 		my $flagR1=0; my $flagR2=0; my $flagR3=0;	
-				
+		
 		if(-s "$fastqn1"){$flagR1=1;}
 		if(-s "$fastqn2"){$flagR2=1;}
 		if(-s "$fastqn3"){$flagR3=1;}
 		
 		$sumStat=$flagR1 + $flagR2 + $flagR3;
-
+		
 		if ( $sumStat >=2 ){
 			$logger->info("Fastq Dump: Completed");
 		}
