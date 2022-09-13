@@ -7,6 +7,7 @@ use Text::CSV;
 use Parallel::ForkManager;
 use Cwd;
 use Config::Simple;
+use Text::Unidecode;
 use Log::Log4perl qw(get_logger);
 
 
@@ -49,7 +50,7 @@ if 	($input_type eq 'list'){
         my $outFile="$outDir/$sraRun.run.metadata.txt";
         if (!-s "$outFile"){
             open (OUT,">$outFile") or $logger->logdie("Cannot write to file - $outFile: $!");
-            print OUT "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\n";
+            print OUT "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\tStudyAbstract\t\t\n";
             $logger->info("Fetching metadata for $sraRun");
             my $outString= getRunTable($sraRun);
             print OUT "$outString\n";
@@ -61,7 +62,7 @@ else {
     my $outFile="$outDir/$inpSRARunInfo.run.metadata.txt";
     if (!-s "$outFile"){
         open (OUT,">$outFile") or $logger->logdie("Cannot write to file - $outFile: $!");
-        print OUT "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\n";
+        print OUT "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\tStudyAbstract\t\t\n";
         $logger->info("Fetching metadata for $inpSRARunInfo");
         my $outString= getRunTable($inpSRARunInfo);
         print OUT "$outString\n";
@@ -83,7 +84,7 @@ my $outTmp="$outDir/$outfileLabel.tmp.txt";
 my $outFileParsed="$outDir/$outfileLabel.metadata.txt";
 
 open (TMP,">$outTmp") or $logger->logdie("Cannot write to file - $outTmp: $!");
-print TMP "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\n";
+print TMP "Run\tRunType\tRunSpots\tSampleAlias\tSampleAccession\tStudyAlias\tStudyAccession\tStudyTitle\tStudyAbstract\n";
 print TMP join("\n",@metadata_recs);
 close TMP;
 
@@ -94,8 +95,8 @@ system("rm $outTmp");
 sub getRunTable {
 	my ($id)=(@_);
 	my ($samHeaders,$samDetails) = getSampleInfo($id);
-	my ($runtype,$runspots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,$studyTitle) = getRunInfo($id);
-	my $retStr="$id\t$runtype\t$runspots\t$sampleAlias\t$sampleAccn\t$studyAlias\t$studyAccn\t$studyTitle\t$samHeaders\t$samDetails";
+	my ($runtype,$runspots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,$studyTitle,$study_abstract) = getRunInfo($id);
+	my $retStr="$id\t$runtype\t$runspots\t$sampleAlias\t$sampleAccn\t$studyAlias\t$studyAccn\t$studyTitle\t$study_abstract\t$samHeaders\t$samDetails";
 	return $retStr;
 }
 
@@ -104,6 +105,8 @@ sub getSampleInfo {
 	my $saminfoTemp = `$edirectPath/esearch -db sra -query $id | $edirectPath/efetch -format xml | $edirectPath/xtract -pattern EXPERIMENT_PACKAGE  -block SAMPLE -sep '|' -element SAMPLE_ATTRIBUTE/TAG SAMPLE_ATTRIBUTE/VALUE`;
 	chomp $saminfoTemp;
 	my ($headers,$info)=split(/\t/,$saminfoTemp);
+	$headers = unidecode($headers);
+	$info = unidecode($info);
 	return ($headers,$info);
 }
 
@@ -111,12 +114,11 @@ sub getSampleInfo {
 sub getRunInfo {
 	my ($id)=(@_);
 	
-	my $studyTitle = "-";
-	my $runinfoTmp = `$edirectPath/esearch -db sra -query $id | $edirectPath/efetch -format xml | $edirectPath/xtract -pattern EXPERIMENT_PACKAGE -block RUN_SET -element Statistics\@nreads RUN\@total_spots -block SAMPLE -element SAMPLE\@alias SAMPLE\@accession -block STUDY -element STUDY\@alias STUDY\@accession -block STUDY -element STUDY_TITLE`;
+	my $runinfoTmp = `$edirectPath/esearch -db sra -query $id | $edirectPath/efetch -format xml | $edirectPath/xtract -pattern EXPERIMENT_PACKAGE -block RUN_SET -element Statistics\@nreads RUN\@total_spots -block SAMPLE -element SAMPLE\@alias SAMPLE\@accession -block STUDY -element STUDY\@alias STUDY\@accession -block STUDY -element STUDY_TITLE -element STUDY_ABSTRACT`;
 	
 	chomp $runinfoTmp;
 	
-	my ($type,$spots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,@title)=split(/\s+/,$runinfoTmp);
+	my ($type,$spots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,$studyTitle,$study_abstract)=split(/\t/,$runinfoTmp);
 	if($type > 1){
 		$type= "PAIRED";
 	}
@@ -124,20 +126,28 @@ sub getRunInfo {
 		$type= "SINGLE";
 	}
 	
-	if (scalar @title == 0){
+	if ($studyTitle){
+		$studyTitle = unidecode($studyTitle);
+	}
+	else {
 		$studyTitle = "-";
 	}
-	else{
-		$studyTitle = join(" ",@title);
+
+	if ($study_abstract){
+		$study_abstract = unidecode($study_abstract);
 	}
-	return ($type,$spots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,$studyTitle);
+	else {
+		$study_abstract = "-";
+	}
+	# print($type,$spots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,$studyTitle,$study_abstract);
+	return ($type,$spots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,$studyTitle,$study_abstract);
 }
 
 
 
 sub parse_table {
 	my ($rawMetadataTable,$parsedMetadataTable)=(@_);
-
+	# print "$rawMetadataTable\n";
 	my $getTagsCol= q(awk '{FS="\t"}{print $(NF-1)}' ).$rawMetadataTable."|sort|uniq";
 	my $uniqTags=`$getTagsCol`;
 	chomp $uniqTags;
@@ -150,7 +160,7 @@ sub parse_table {
 		#print "$tagSet\n";
 		my @tagTemp=split(/\|/,$tagSet);
 		foreach my $tName (@tagTemp){
-			if ($tName ne 'RunType'){
+			if (($tName ne 'RunType') and ($tName ne 'StudyTitle')){
 				$tagNames{$tName}=$tName;
 			}
 		}
