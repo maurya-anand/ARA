@@ -188,7 +188,7 @@ if ($sra_run_info_str){
 	my $sra_url_check = $tmp[9];
 	my $run_spots_re_check = $tmp[3];
 
-	if ($samType_re_check){
+	if (($samType_re_check eq "PAIRED") or ($samType_re_check eq "SINGLE")){
 		if($sample_type ne $samType_re_check){
 			$logger->info("Using corrected sample type ($samType_re_check instead of $sample_type) for $sra_sample_id");
 			$sample_type = $samType_re_check;
@@ -343,7 +343,7 @@ if ($blastn_exec_flag == 1 ) {
     
     my $blast_outfmt= '"6 qseqid qstart qend length nident qlen qseq sseqid sstart send slen sstrand sseq pident bitscore evalue"';
 
-    if (! -s "$blast_results"){
+    if ((! -s "$blast_results") && (-s "$trimmedCollapsedReHeadFasta")){
 
         $logger->info("Executing: Blastn");
         my $execBlastComm = "$blastn -db $blastn_db_path -query $trimmedCollapsedReHeadFasta -out $blast_results -perc_identity $blastn_perc_identity -qcov_hsp_perc $blastn_qcov_hsp_perc -num_threads $blastn_num_threads -outfmt $blast_outfmt";
@@ -351,35 +351,36 @@ if ($blastn_exec_flag == 1 ) {
         system ("$execBlastComm");
 
         if (! -s "$blast_results"){
-
             $logger->error("Blastn : Result : No hits found");
         }
+		else {
+			$logger->info("Blastn for $sra_sample_id completed");
+		}
     }
 
-    $logger->info("Blastn for $sra_sample_id completed");
-
-	my ($percblastHits,$percMappedReads,$retStr)=check_blast_hits($sra_sample_id,$trimmedCollapsedReHeadFasta,$blast_results);
+	if (! -s "$blast_results"){
+		$logger->error("Blastn for $sra_sample_id failed");
+	}
+	else {
+		my ($percblastHits,$percMappedReads,$retStr)=check_blast_hits($sra_sample_id,$trimmedCollapsedReHeadFasta,$blast_results);
     
-    my $blast_hits_status_logfile = "$blast_analysis_dir/blast.stats.txt";
-    open(STATUS, ">$blast_hits_status_logfile") or $logger->logdie("Cannot write to file  - $blast_hits_status_logfile: $!");
-    print STATUS "Unique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tStatus\n";
-    
-	if ($percMappedReads >= $blastn_align_cutoff){
-		# $logger->info("Blastn : Result : ID\tUnique_seqs\tUnique_Query_Ids\tUnique_tRNA_IDs\tHits_Perc");
-        $logger->info("Blastn : Result : Unique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast");
-        $logger->info("Blastn : Result : PASS\t$retStr");
-
-        print STATUS "$retStr\tPASS\n";
-    }
-    else{
-
-        print STATUS "$retStr\tFAIL\n";
-
-        # $logger->error("Blastn : Result : Hits less than 0.01%");
-		$logger->error("Blastn : Result : Hits less than $blastn_align_cutoff %");
-    }
-    close STATUS;
-   
+		my $blast_hits_status_logfile = "$blast_analysis_dir/blast.stats.txt";
+		open(STATUS, ">$blast_hits_status_logfile") or $logger->logdie("Cannot write to file  - $blast_hits_status_logfile: $!");
+		print STATUS "Unique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tStatus\n";
+		
+		if ($percMappedReads >= $blastn_align_cutoff){
+			# $logger->info("Blastn : Result : ID\tUnique_seqs\tUnique_Query_Ids\tUnique_tRNA_IDs\tHits_Perc");
+			$logger->info("Blastn : Result : Unique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast");
+			$logger->info("Blastn : Result : PASS\t$retStr");
+			print STATUS "$retStr\tPASS\n";
+		}
+		else{
+			print STATUS "$retStr\tFAIL\n";
+			# $logger->error("Blastn : Result : Hits less than 0.01%");
+			$logger->error("Blastn : Result : Hits less than $blastn_align_cutoff %");
+		}
+		close STATUS;
+	}
 }
 
 if ($bowtie2_exec_flag == 1 ) {
@@ -399,54 +400,52 @@ if ($bowtie2_exec_flag == 1 ) {
 
 	my $bowtie2_index_path =  create_bowtie2_index($inp_sequences,$references_dir);
 
-    if (! -s "$alignment_stats"){
+	if ($sample_type eq "PAIRED") {
 
+		$sampleTrimmedFastq="$analysis_dir/$sra_sample_id/trimmed_data/$sra_sample_id\_COM\_AT.fastq";
+	}
+
+	if ($sample_type eq "SINGLE") {
+
+		$sampleTrimmedFastq="$analysis_dir/$sra_sample_id/trimmed_data/$sra_sample_id\_AT.fastq";
+	}
+
+	if (-s "$sampleTrimmedFastq"){
+
+		$trimmedCollapsedReHeadFasta = fastq_to_fasta($sra_sample_id, $sampleTrimmedFastq, $trimmomatic_output_dir);
+		# system("rm $analysis_dir/$sra_sample_id/trimmed_data/*.fastq");
+	}
+
+    if ((! -s "$alignment_stats") && (-s "$trimmedCollapsedReHeadFasta")){
         $logger->info("Executing : Bowtie2");
-
         system("mkdir -p $bowtie_analysis_dir");
-        
-        
-        if ($sample_type eq "PAIRED") {
-
-			$sampleTrimmedFastq="$analysis_dir/$sra_sample_id/trimmed_data/$sra_sample_id\_COM\_AT.fastq";
-		}
-
-		if ($sample_type eq "SINGLE") {
-
-			$sampleTrimmedFastq="$analysis_dir/$sra_sample_id/trimmed_data/$sra_sample_id\_AT.fastq";
-		}
-
-		if (-s "$sampleTrimmedFastq"){
-
-			$trimmedCollapsedReHeadFasta = fastq_to_fasta($sra_sample_id, $sampleTrimmedFastq, $trimmomatic_output_dir);
-			# system("rm $analysis_dir/$sra_sample_id/trimmed_data/*.fastq");
-		}
 		# running bowtie on collapsed unique fasta
 		$bowtie2_comm = "$bowtie2 -x $bowtie2_index_path -f $trimmedCollapsedReHeadFasta --no-unal --end-to-end --$bowtie2_e2e_preset -p $bowtie2_threads 2> $alignment_stats | $samtools sort -@ $bowtie2_threads -T $analysis_dir/ -o $aligned_bam";
-		
 		$logger->info("Bowtie2 : Command : $bowtie2_comm");
-        my $exec_bowtie2_stdout = `$bowtie2_comm`;
+		my $exec_bowtie2_stdout = `$bowtie2_comm`;
     }
-
-    $logger->info("Bowtie2 for $sra_sample_id completed");
-    
-	my ($percbowtieHits,$percTotalMappedReads,$retStr)= check_bowtie2_hits($bowtie_analysis_dir,$aligned_bam,$trimmedCollapsedReHeadFasta);
+	else {
+		$logger->error("Bowtie2 for $sra_sample_id failed");
+	}
 	
-	open(BOWTIESTATS, ">$alignment_stats_out") or $logger->logdie("Cannot write to file  - $alignment_stats_out: $!");
-	print BOWTIESTATS "Unique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tStatus\n";
-	# print ">>>BOWTE CUTOFF $percTotalMappedReads gt eq $bowtie2_align_cutoff\n";
-	if ($percTotalMappedReads >= $bowtie2_align_cutoff){
+	if (-s "$aligned_bam"){
+		my ($percbowtieHits,$percTotalMappedReads,$retStr)= check_bowtie2_hits($bowtie_analysis_dir,$aligned_bam,$trimmedCollapsedReHeadFasta);
+		
+		open(BOWTIESTATS, ">$alignment_stats_out") or $logger->logdie("Cannot write to file  - $alignment_stats_out: $!");
 
-		$logger->info("Bowtie2 : Result : Unique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2");
-        $logger->info("Bowtie2 : Result : PASS\t$retStr");
+		print BOWTIESTATS "Unique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tStatus\n";
+		if ($percTotalMappedReads >= $bowtie2_align_cutoff){
+			$logger->info("Bowtie2 : Result : Unique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2");
+			$logger->info("Bowtie2 : Result : PASS\t$retStr");
 
-        print BOWTIESTATS "$retStr\tPASS\n";
-    }
-    else{
-		print BOWTIESTATS "$retStr\tFAIL\n";
-		$logger->error("Bowtie2 : Result : Hits less than $bowtie2_align_cutoff %");
-    }
-	close BOWTIESTATS;
+			print BOWTIESTATS "$retStr\tPASS\n";
+		}
+		else{
+			print BOWTIESTATS "$retStr\tFAIL\n";
+			$logger->error("Bowtie2 : Result : Hits less than $bowtie2_align_cutoff %");
+		}
+		close BOWTIESTATS;
+	}
 }
 
 
