@@ -323,6 +323,8 @@ if ($blastn_exec_flag == 1 ) {
     my $blast_filtered_results = "$blast_analysis_dir/$sra_sample_id\_blast_best_hits.txt";
     my $blast_filtered_bed = "$blast_analysis_dir/$sra_sample_id\_blast_best_hits_sorted.bed";
 
+	my $blast_hits_status_logfile = "$blast_analysis_dir/blast.stats.txt";
+
 	my $blastn_db_path =  create_blastn_db($inp_sequences,$references_dir);
 
 
@@ -362,10 +364,8 @@ if ($blastn_exec_flag == 1 ) {
 		$logger->error("Blastn for $sra_sample_id failed");
 	}
 	
-	if ((! -s "$blast_hits_status_logfile") && (-s "$blast_results")){ {
+	if ((! -s "$blast_hits_status_logfile") && (-s "$blast_results")){
 		my ($percblastHits,$percMappedReads,$retStr)=check_blast_hits($sra_sample_id,$trimmedCollapsedReHeadFasta,$blast_results);
-    
-		my $blast_hits_status_logfile = "$blast_analysis_dir/blast.stats.txt";
 		open(STATUS, ">$blast_hits_status_logfile") or $logger->logdie("Cannot write to file  - $blast_hits_status_logfile: $!");
 		print STATUS "Unique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tStatus\n";
 		
@@ -429,7 +429,7 @@ if ($bowtie2_exec_flag == 1 ) {
 		$logger->error("Bowtie2 for $sra_sample_id failed");
 	}
 	
-	if (-s "$aligned_bam"){
+	if (-s "$alignment_stats"){
 		my ($percbowtieHits,$percTotalMappedReads,$retStr)= check_bowtie2_hits($bowtie_analysis_dir,$aligned_bam,$trimmedCollapsedReHeadFasta);
 		
 		open(BOWTIESTATS, ">$alignment_stats_out") or $logger->logdie("Cannot write to file  - $alignment_stats_out: $!");
