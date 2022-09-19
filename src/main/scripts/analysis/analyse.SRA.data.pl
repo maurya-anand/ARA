@@ -361,7 +361,8 @@ if ($blastn_exec_flag == 1 ) {
 	if (! -s "$blast_results"){
 		$logger->error("Blastn for $sra_sample_id failed");
 	}
-	else {
+	
+	if ((! -s "$blast_hits_status_logfile") && (-s "$blast_results")){ {
 		my ($percblastHits,$percMappedReads,$retStr)=check_blast_hits($sra_sample_id,$trimmedCollapsedReHeadFasta,$blast_results);
     
 		my $blast_hits_status_logfile = "$blast_analysis_dir/blast.stats.txt";
