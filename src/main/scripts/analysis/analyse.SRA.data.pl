@@ -124,7 +124,7 @@ my $bowtie2_exec_flag				= $tool_config_obj->param('bowtie2.execute');
 # my $exec_SRA_analysis_flag	= $tool_config_obj->param('sra_metadata.raw_data_complete_analysis');
 
 my $exec_cov_analysis_flag = 0;
-# if ($fastq_dump_perc <= 100) {
+
 if ($fastq_dump_perc) {
     $exec_cov_analysis_flag = 0;
 }
@@ -133,14 +133,17 @@ if ($fastqc_exec_raw_data_flag ==1){
 	$fastq_dump_exec_flag = 1;
 }
 
-if ($fastq_dump_exec_flag == 0){
-	$fastqc_exec_raw_data_flag = 0;
-	$trimmomatic_exec_flag = 0;
+if ($trimmomatic_exec_flag == 1){
+	$fastq_dump_exec_flag = 1;
+	$fastqc_exec_raw_data_flag = 1;
+	$fastqc_exec_trimmed_data_flag = 1;
 }
 
-if ($trimmomatic_exec_flag == 0){
-	$blastn_exec_flag = 0;
-	$bowtie2_exec_flag = 0;
+if (($blastn_exec_flag == 1) or ($bowtie2_exec_flag == 1)){
+	$fastq_dump_exec_flag = 1;
+	$fastqc_exec_raw_data_flag = 1;
+	$fastqc_exec_trimmed_data_flag = 1;
+	$trimmomatic_exec_flag = 1;
 }
 
 ## if decimal is present, then extract the number.. else.. substitue all no digit characters with nothing
@@ -310,7 +313,7 @@ if ($trimmomatic_exec_flag == 1 ) {
 
 ## Execute blastn ###################################################################
 if ($blastn_exec_flag == 1 ) {
-
+	
 	my $sampleTrimmedFastq;
 	my $trimmedCollapsedReHeadFasta;
 
