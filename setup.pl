@@ -14,7 +14,7 @@ system("mkdir -p $tools_path");
 system("rm -rf $tools_path/*");
 
 # required perl modules
-my @perl_modules=('Config::Simple', 'Parallel::ForkManager', 'Log::Log4perl', 'Getopt::Long', 'Text::CSV', 'Text::Fuzzy','Text::Unidecode');
+my @perl_modules=('CPAN::DistnameInfo','Config::Simple', 'Parallel::ForkManager', 'Log::Log4perl', 'Getopt::Long', 'Text::CSV', 'Text::Unidecode');
 
 # required binaries
 my %tools = ('esearch', '-', 'efetch', '-', 'xtract' , '-', 'fastx_collapser', '-', 'samtools', '-','kraken2', '-');
