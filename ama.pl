@@ -261,8 +261,8 @@ if (lc $run_mode eq "summary"){
 	}
 }
 
-
-$logger->info("\n\nAnalysis completed");
+$logger->info("Analysis completed");
+# $logger->info("Please check the runlog.*.txt for details.");
 
 ## Takes the metadata table (parsed uncategorised) and executes blast pipeline on complete dataset from each run
 ## Generates a combined blast hits percentage table after analysis
@@ -337,6 +337,7 @@ sub analyse_raw_data {
 		}
 		close STATS;
 		$logger->info("Pipeline : Combined alignment stats : $statsFile");
+		$logger->info("Pipeline : Summary : More details can be found in sample-wise log files at $work_dir/runlog.*.txt");
 	}
 }
 
@@ -445,6 +446,7 @@ sub screen_raw_data {
 		close STATS;
 		$logger->info("Pipeline : RAW data screening stats : $statsFile");
 		$logger->info("Pipeline : Summary : Total runs processed: $total_runs. Total number of passed runs: $passed_runs");
+		$logger->info("Pipeline : Summary : More details can be found in sample-wise log files at $work_dir/runlog.*.txt");
 
 	}
 }

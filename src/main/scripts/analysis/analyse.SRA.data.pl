@@ -88,6 +88,7 @@ my $blastn          	= $tool_config_obj->param('toolPath.blastn');
 my $makeblastdb			= $tool_config_obj->param('toolPath.makeblastdb');
 my $bowtie2         	= $tool_config_obj->param('toolPath.bowtie2');
 my $bowtie2_build		= $tool_config_obj->param('toolPath.bowtie2-build');
+my $kraken2         	= $tool_config_obj->param('toolPath.kraken2');
 my $samtools        	= $tool_config_obj->param('toolPath.samtools');
 my $pipeline_ver    	= $tool_config_obj->param('pipeline.version');
 
@@ -108,6 +109,8 @@ my $blastn_align_cutoff		= $tool_config_obj->param('blastn.alignment_perc_cutoff
 my $bowtie2_threads         = $tool_config_obj->param('bowtie2.threads');
 my $bowtie2_e2e_preset		= $tool_config_obj->param('bowtie2.end_to_end_preset');
 my $bowtie2_align_cutoff	= $tool_config_obj->param('bowtie2.alignment_perc_cutoff');
+my $kraken2_threads         = $tool_config_obj->param('kraken2.threads');
+my $kraken2_db         		= $tool_config_obj->param('kraken2.kraken2_db_path');
 # my $bowtie2_index_path      = $tool_config_obj->param('bowtie2.bowtie_index_path');
 
 # my $fastq_dump_exec_flag = 1; my $fastqc_exec_flag = 1; my $trimmomatic_exec_flag = 1; my $blastn_exec_flag = 1; 
@@ -119,7 +122,7 @@ my $trimmomatic_exec_flag           = $tool_config_obj->param('trimmomatic.execu
 my $fastqc_exec_trimmed_data_flag   = $tool_config_obj->param('fastqc.execute_trimmed_data_qc'); 
 my $blastn_exec_flag                = $tool_config_obj->param('blastn.execute');
 my $bowtie2_exec_flag				= $tool_config_obj->param('bowtie2.execute');
-
+my $kraken2_exec_flag				= $tool_config_obj->param('kraken2.execute');
 
 # my $exec_SRA_analysis_flag	= $tool_config_obj->param('sra_metadata.raw_data_complete_analysis');
 
@@ -211,7 +214,6 @@ if ($sra_run_info_str){
 		# sratoolkit.2.10.5-ubuntu64/bin/srapath SRR000001 returns https://sra-pub-run-odp.s3.amazonaws.com/sra/SRR000001/SRR000001
 	}
 }
-
 
 ## Execute fastq dump ###############################################################
 if ($fastq_dump_exec_flag == 1 ) {
@@ -449,6 +451,50 @@ if ($bowtie2_exec_flag == 1 ) {
 			$logger->error("Bowtie2 : Result : Hits less than $bowtie2_align_cutoff %");
 		}
 		close BOWTIESTATS;
+	}
+}
+
+if ($kraken2_exec_flag == 1 ) {
+    my $trimmomatic_output_dir = "$analysis_dir/$sra_sample_id/trimmed_data";
+
+    my $kraken2_output_dir = "$analysis_dir/$sra_sample_id/kraken2";
+
+    my $kraken2_output_file="$kraken2_output_dir/$sra_sample_id.kraken";
+	my $kraken2_report_file="$kraken2_output_dir/$sra_sample_id.report";
+	my $kraken2_stdout = "$kraken2_output_dir/$sra_sample_id.stdout.txt";
+
+	my $trimmedCollapsedReHeadFasta;
+	my $sampleTrimmedFastq;
+
+	if ($sample_type eq "PAIRED") {
+
+		$sampleTrimmedFastq="$analysis_dir/$sra_sample_id/trimmed_data/$sra_sample_id\_COM\_AT.fastq";
+	}
+
+	if ($sample_type eq "SINGLE") {
+
+		$sampleTrimmedFastq="$analysis_dir/$sra_sample_id/trimmed_data/$sra_sample_id\_AT.fastq";
+	}
+
+	if (-s "$sampleTrimmedFastq"){
+
+		$trimmedCollapsedReHeadFasta = fastq_to_fasta($sra_sample_id, $sampleTrimmedFastq, $trimmomatic_output_dir);
+		# system("rm $analysis_dir/$sra_sample_id/trimmed_data/*.fastq");
+	}
+
+    if ((! -s "$kraken2_report_file") && (-s "$trimmedCollapsedReHeadFasta")){
+        $logger->info("Executing : Kraken2");
+        system("mkdir -p $kraken2_output_dir");
+		# running kraken on collapsed unique fasta
+		my $kraken2_comm = "$kraken2 --db $kraken2_db --threads $kraken2_threads $trimmedCollapsedReHeadFasta --output $kraken2_output_file --report $kraken2_report_file >> $kraken2_stdout 2>&1";
+		$logger->info("Kraken2 : Command : $kraken2_comm");
+		system("$kraken2_comm");
+    }
+	
+	if (-s "$kraken2_report_file"){
+		$logger->info("Kraken2 : Result : Classification file generated: $kraken2_report_file");
+	} else {
+		$logger->error("Kraken2 : Failed");
 	}
 }
 
@@ -730,7 +776,7 @@ sub download_sample_full_sra {
 	my $sraWgetFlag=0;
 	
 	my $wgetLogStdout = "$outPath/wget.full.sra.stdout.txt";
-	my $sra_file;
+	my $sra_file="-";
 	
 	for (my $attempt = 1; $attempt<=3; $attempt++){
 		
@@ -738,7 +784,10 @@ sub download_sample_full_sra {
 			system ("cp $files[0] $outPath/$id");
 			system("rm $outPath/sra/*");
 			$sra_file = "$outPath/$id";
-			last;
+			if(-s "$sra_file"){
+				last;
+			}
+			
 		}	
 		
 		else{
@@ -753,6 +802,7 @@ sub download_sample_full_sra {
 	
 	else {
 		$logger->error("Failed to retieve sra file from $sra_url");
+		return 0;
 	}
 	
 	my $dumpCommPELogStdout = "$outPath/fastq_dump.stdout.txt";
