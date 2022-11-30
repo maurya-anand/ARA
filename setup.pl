@@ -17,7 +17,7 @@ system("rm -rf $tools_path/*");
 my @perl_modules=('Config::Simple', 'Parallel::ForkManager', 'Log::Log4perl', 'Getopt::Long', 'Text::CSV', 'Text::Fuzzy','Text::Unidecode');
 
 # required binaries
-my %tools = ('esearch', '-', 'efetch', '-', 'xtract' , '-', 'fastx_collapser', '-', 'samtools', '-');
+my %tools = ('esearch', '-', 'efetch', '-', 'xtract' , '-', 'fastx_collapser', '-', 'samtools', '-','kraken2', '-');
 
 my $out_conf= "$base_path/conf.txt";
 
@@ -26,7 +26,7 @@ my $blastnURL = "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.10.0/nc
 my $sratoolkitURL = "https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.10.5/sratoolkit.2.10.5-ubuntu64.tar.gz";
 my $bowtie2URL = "https://github.com/BenLangmead/bowtie2/releases/download/v2.4.5/bowtie2-2.4.5-linux-x86_64.zip";
 my $fastqcURL = "https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip";
-
+my $kraken_viral_db = "https://genome-idx.s3.amazonaws.com/kraken/k2_viral_20220908.tar.gz";
 
 # edirect utils: https://www.ncbi.nlm.nih.gov/books/NBK179288/
 # fastx_toolkit: http://hannonlab.cshl.edu/fastx_toolkit/install_ubuntu.txt
@@ -62,13 +62,19 @@ foreach my $mod(@perl_modules){
     install_perl_module($mod);
 }
 
+my $wget_path = `which wget`;
+chomp $wget_path;
+if ($wget_path eq ''){
+    print "ERROR : Unable to find wget in the path. Please install wget utility in your system before starting the analysis\n";
+}
+
 # # setup trimmomatic
 my $trimmomatic_path = `which trimmomatic`;
 chomp $trimmomatic_path;
 my $trimmomatic_adapter_PE = '<Please provide a valid path for the paired end adapter fasta file>';
 my $trimmomatic_adapter_SE = '<Please provide a valid path for the single end adapter fasta file>';
 
-if ($trimmomatic_path eq ''){
+if ($trimmomatic_path !~ /trimmomatic$/){
     system ("wget $trimmomaticURL -P $tools_path/");
     system ("unzip -o $tools_path/Trimmomatic-0.39.zip -d $tools_path/");
     system ("rm $tools_path/Trimmomatic-0.39.zip");
@@ -86,7 +92,11 @@ else {
     # $trimmomatic_path = "trimmomatic";
     my @tmp_path= split(/\//,$trimmomatic_path);
     pop @tmp_path; pop @tmp_path;
-    $trimmomatic_path = join("/",@tmp_path).'/share/trimmomatic-0.39-2/trimmomatic.jar';
+    $trimmomatic_path = join("/",@tmp_path).'/share/trimmomatic/trimmomatic.jar';
+    if (! -s "$trimmomatic_path"){
+        $trimmomatic_path = '<Please provide a valid path for the executable jar file>';
+        print "ERROR : Unable to setup Trimmomatic. Please provide a valid path for trimmomatic and the adapters in the config file: $out_conf\n";
+    }
     if (-s "$base_path/src/main/resources/adapters/TruSeq2-PE.fa"){
         $trimmomatic_adapter_PE = "$base_path/src/main/resources/adapters/TruSeq2-PE.fa";
     }
@@ -166,10 +176,22 @@ if ($fastqc_path eq ""){
     }
 }
 
-my $wget_path = `which wget`;
-chomp $wget_path;
-if ($wget_path eq ''){
-    print "ERROR : Unable to find wget in the path. Please install wget utility in your system before starting the analysis\n";
+# # setup kraken2 database
+my $kraken2_path = `which kraken2`;
+my $kraken2_db_path = "$base_path/kraken-db";
+chomp $kraken2_path;
+
+if ($kraken2_path ne ''){
+    system ("mkdir -p $kraken2_db_path");
+    if (! -s "$kraken2_db_path/hash.k2d"){
+        system ("wget $kraken_viral_db -P $kraken2_db_path/");
+        system ("tar -xvf $kraken2_db_path/k2_viral_20220908.tar.gz -C $kraken2_db_path/");
+        system ("rm $kraken2_db_path/k2_viral_20220908.tar.gz");
+    }
+}
+else {
+    print "ERROR : Unable to find kraken2 in PATH. Please provide a valid path for kraken2 in the config file: $out_conf\n";
+    $kraken2_path = '<Please provide a valid path for the executable binary>';
 }
 
 foreach my $binary(keys %tools){
@@ -212,7 +234,7 @@ my $config = <<"CONFIG";
 [pipeline]
 
 threads = 1
-version = 1.5.0
+version = 1.6.0
 ########################################## end of pipeline config #####################################################
 
 [fastq_dump]
@@ -255,6 +277,13 @@ end_to_end_preset = sensitive
 alignment_perc_cutoff = 1
 ########################################## end bowtie2 config ########################################################
 
+[kraken2]
+
+execute = 1
+threads = 2
+kraken2_db_path = $kraken2_db_path
+########################################## end bowtie2 config ########################################################
+
 [toolPath]
 
 fastq_dump = $fastqdump_path
@@ -269,6 +298,7 @@ bowtie2-build = $bowtie2_build_path
 samtools = $tools{'samtools'}
 ncbi_edirect = $tools{'efetch'}
 fastx_collapser = $tools{'fastx_collapser'}
+kraken2 = $tools{'kraken2'}
 ########################################## end of tools path config #######################################################
 CONFIG
 
