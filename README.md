@@ -58,7 +58,7 @@ Before starting any analysis with the pipeline, please make sure that the system
 
 Please be patient because downloading and configuring the tools/modules may take several minutes. The warning messages that appear during the installation of certain Perl modules can be ignored by users.
 
-Refer the [Troubleshooting](#troubleshooting) section in case of any installation related issues.
+Refer the 'Troubleshooting' section in case of any installation related issues.
 
 ------------------------------------------------------------------------
 
@@ -78,13 +78,13 @@ To get full usage info: `perl ama.pl --help`
 
 ### Configuration file
 
-The configuration file `conf.txt` is automatically generated during the installation by setup script. It contains certain default parameters as well as the location to the executable binaries of the [tools](#list-of-perl-modules-and-tools-incorporated-in-the-pipeline) incorporated in the pipeline.
+The configuration file `conf.txt` is automatically generated during the installation by setup script. It contains certain default parameters as well as the location to the executable binaries of the tools incorporated in the pipeline.
 
 The user can modify the default parameters in `conf.txt` and pass it to the pipeline as an input. For example, the user can choose between *blastn* or *bowtie2* by changing the 'execute flag' to either 0 or 1 in the configuration file while leaving the rest of the parameters to default values. By default, both the tools are enabled *ie*. `execute = 1`.
 
 By default, the pipeline uses a pre-built Kraken2 viral genomic database ([release: 9/8/2022](https://genome-idx.s3.amazonaws.com/kraken/k2_viral_20220908.tar.gz)) from <https://benlangmead.github.io/aws-indexes/k2>. Users can provide their own database by changing the `kraken2_db_path` parameter in the `conf.txt` file.
 
-> *Note:* If the user wishes to use a different installation than Bioconda, the user can manually install the required [tools](#list-of-perl-modules-and-tools-incorporated-in-the-pipeline) and specify the absolute path of the executable binaries in the configuration.
+> *Note:* If the user wishes to use a different installation than Bioconda, the user can manually install the required tools and specify the absolute path of the executable binaries in the configuration.
 
 ------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ By default, the pipeline uses a pre-built Kraken2 viral genomic database ([relea
 
 ------------------------------------------------------------------------
 
-### Troubleshooting {#troubleshooting}
+### Troubleshooting
 
 -   Errors related to mamba/conda environment:
 
@@ -138,7 +138,7 @@ By default, the pipeline uses a pre-built Kraken2 viral genomic database ([relea
 
 ------------------------------------------------------------------------
 
-### List of Perl modules and tools incorporated in the pipeline {#list-of-perl-modules-and-tools-incorporated-in-the-pipeline}
+### List of Perl modules and tools incorporated in the pipeline
 
 -   Perl modules:
 
