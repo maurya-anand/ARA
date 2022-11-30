@@ -11,7 +11,7 @@
 
 
 
-<title>AMA.v1.5.0</title>
+<title>AMA.v1.6.0</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1372,8 +1372,8 @@ pre code {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -1381,16 +1381,9 @@ pre code {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -1508,7 +1501,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">AMA.v1.5.0</h1>
+<h1 class="title toc-ignore">AMA.v1.6.0</h1>
 <h3 class="subtitle">An automatic pipeline for exploration of SRA
 datasets with sequences as a query</h3>
 
@@ -1523,62 +1516,84 @@ sequences as a query</h2>
 <div id="requirements" class="section level3">
 <h3>Requirements</h3>
 <ul>
-<li>Bioconda (<a href="https://bioconda.github.io/user/install.html" title="Getting Started - Bioconda documentation">Go to the official
-documentation</a>).</li>
-</ul>
+<li><p><strong>Docker</strong></p>
+<ul>
+<li><p>Please checkout the <a href="https://docs.docker.com/get-docker/">Docker installation</a>
+guide.</p>
+<p><em>or</em></p></li>
+</ul></li>
+<li><p><strong>Mamba package manager</strong></p>
+<ul>
+<li><p>Please checkout the <a href="https://mamba.readthedocs.io/en/latest/installation.html">mamba or
+micromamba</a> official installation guide.</p></li>
+<li><p>We prefer <code>mamba</code> over <a href="https://docs.conda.io/en/latest/"><code>conda</code></a> since it
+is faster and uses <code>libsolv</code> to effectively resolve the
+dependencies.</p></li>
+<li><p><code>conda</code> can still be used to install the pipeline
+using the same commands as described in the installation section.</p>
 <blockquote>
-<p><em>Note</em>: <strong>It is important to include the ‘bioconda
-channel’ in addition to the other channels as indicated in the <a href="https://bioconda.github.io/user/install.html#set-up-channels" title="Bioconda documentation - Set up channels">official
-manual</a></strong>.</p>
-<p>Use the commands <code>conda config --add channels defaults</code>,
-<code>conda config --add channels bioconda</code> and
-<code>conda config --add channels conda-forge</code> respectively to
-setup the channels as suggested in the documentation.</p>
-<p>Please pay attention to the instructions in the installer while
-setting up the miniconda. Use <code>echo $PATH</code> to verify whether
-the ‘conda installation’ of Python is in your PATH variable.</p>
-</blockquote>
+<p>Note: <strong>It is important to include the ‘bioconda’ channel in
+addition to the other channels as indicated in the <a href="https://bioconda.github.io/#usage" title="Bioconda - Usage">official manual</a></strong>. Use the following
+commands in the given order to configure the channels (one-time
+setup).</p>
+<pre class="bash"><code>conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict</code></pre>
+</blockquote></li>
+</ul></li>
+</ul>
 <hr />
 </div>
 <div id="installation" class="section level3">
 <h3>Installation</h3>
+<p>The user can install the pipeline by using either Docker or Mamba
+using the steps mentioned below.</p>
+<p>Firstly, download and extract the zip file into the desired location
+before starting the setup.</p>
+<p>Before starting any analysis with the pipeline, please make sure that
+the system has enough disk space available for the data you wish to
+retrieve and process from the SRA repository.</p>
 <ul>
-<li><p>Please download and extract the zip file into the desired
-location before starting the setup. Before downloading and processing
-fastq files with the pipeline, please make sure the system has enough
-disk space available for the data you wish to retrieve and analyse from
-the SRA repository. After installation, the conda environment consumes
-approximately 1 GB of disk space.</p></li>
-<li><p>Use the <code>requirements.txt</code> provided in the package and
-create a virtual environment.</p></li>
-<li><p>Activate the environment and run the setup script.</p></li>
-</ul>
+<li><p><strong>Using Docker</strong></p>
 <pre class="bash"><code>cd AMA/
-conda create --name ama_env --file requirements.txt -y
-conda activate ama_env
+docker build -t ama_img .</code></pre></li>
+</ul>
+<p><em>or</em></p>
+<ul>
+<li><p><strong>Using Mamba</strong></p>
+<pre class="bash"><code>cd AMA/
+mamba env create --file requirements.yaml
+mamba activate ama_env
 perl setup.pl</code></pre>
 <blockquote>
-<p><em>Note:</em> This tool was tested on “Ubuntu 20.04.4 LTS” with
-“conda 4.11.0” using the installation procedure mentioned above.</p>
-</blockquote>
+<p><em>Note: After installation, the virtual environment consumes
+approximately 1.5 GB of disk space. The installation was tested on
+“Ubuntu 20.04.4 LTS”, “Ubuntu 22.04.1 LTS” and “Fedora 37” using the
+procedure mentioned above.</em></p>
+</blockquote></li>
+</ul>
 <p>Please be patient because downloading and configuring the
-tools/modules may take several minutes. The warnings that appear during
-the installation of certain Perl modules can be ignored by users.</p>
-<p>Please refer the <a href="#troubleshooting">Troubleshooting</a>
-section in case of any installation related issues.</p>
+tools/modules may take several minutes. The warning messages that appear
+during the installation of certain Perl modules can be ignored by
+users.</p>
+<p>Refer the <a href="#troubleshooting">Troubleshooting</a> section in
+case of any installation related issues.</p>
 <hr />
 </div>
 <div id="example-usage" class="section level3">
 <h3>Example usage</h3>
 <ul>
-<li><p>To get full usage info: <code>perl ama.pl --help</code></p></li>
-<li><p>Minimal usage example:
-<code>perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa</code></p></li>
+<li><p><strong>Docker</strong></p>
+<p><code>docker run -it ama_img /home/AMA-main/ama.pl --input /home/AMA-main/example/SraRunInfo.csv --sequences /home/AMA-main/example/Arabidopsis_thaliana.TAIR10.ncrna.fa</code></p></li>
+<li><p><strong>Mamba environment</strong></p>
+<p><code>perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa</code></p></li>
 </ul>
+<p>To get full usage info: <code>perl ama.pl --help</code></p>
 <blockquote>
 <p><em>Note</em>: The user can delete the contents of
-<code>./results/</code> directory after testing the tool using the
-example mentioned above.</p>
+<code>results/</code> directory after testing the tool using the example
+mentioned above.</p>
 </blockquote>
 </div>
 <div id="configuration-file" class="section level3">
@@ -1594,6 +1609,11 @@ choose between <em>blastn</em> or <em>bowtie2</em> by changing the
 ‘execute flag’ to either 0 or 1 in the configuration file while leaving
 the rest of the parameters to default values. By default, both the tools
 are enabled <em>ie</em>. <code>execute = 1</code>.</p>
+<p>By default, the pipeline uses a pre-built Kraken2 viral genomic
+database (<a href="https://genome-idx.s3.amazonaws.com/kraken/k2_viral_20220908.tar.gz">release:
+9/8/2022</a>) from <a href="https://benlangmead.github.io/aws-indexes/k2" class="uri">https://benlangmead.github.io/aws-indexes/k2</a>. Users can
+provide their own database by changing the <code>kraken2_db_path</code>
+parameter in the <code>conf.txt</code> file.</p>
 <blockquote>
 <p><em>Note:</em> If the user wishes to use a different installation
 than Bioconda, the user can manually install the required <a href="#list-of-perl-modules-and-tools-incorporated-in-the-pipeline">tools</a>
@@ -1662,21 +1682,27 @@ eg:
 <div id="troubleshooting" class="section level3">
 <h3>Troubleshooting</h3>
 <ul>
-<li><p>Errors related to Bioconda:</p>
+<li><p>Errors related to mamba/conda environment:</p>
+<p>Since <code>mamba</code> is a drop-in replacement and uses the same
+commands and configuration options as <strong>conda</strong>, it’s
+possible to swap almost all commands between <strong>conda</strong>
+&amp; <strong>mamba</strong>.</p>
 <p>Use <strong><code>conda list</code></strong> command to verify
-whether the packages mentioned in the <code>requirements.txt</code> are
+whether the packages mentioned in the <code>requirements.yaml</code> are
 successfully installed into your environment.</p>
 <blockquote>
-<p><em>Note:</em> The <code>requirements.txt</code> provided in this
-package was exported from <code>conda 4.11.0</code> installation running
+<p><em>Note:</em> The <code>requirements.yaml</code> provided in this
+package was exported from <code>mamba 0.25.0</code> installation running
 on <code>Ubuntu 20.04.4 LTS</code>.</p>
 </blockquote>
 <p>In case of any missing tool/ conflicting dependencies in the
 environment, the user can try using
-<strong><code>conda search &lt;tool name&gt;</code></strong> command to
-find the supported version of the tool and then manually install it by
-typing <strong><code>conda install &lt;tool name&gt;</code></strong>
-inside the environment. Please refer the official <a href="https://conda.io/projects/conda/en/latest/user-guide/troubleshooting.html" title="User guide » Troubleshooting">troubleshooting guide</a> for
+<strong><code>conda search &lt;tool name&gt;</code></strong> or
+<code>mamba repoquery search</code> command to find the supported
+version of the tool and then manually install it by typing
+<strong><code>conda install &lt;tool name&gt;</code></strong> or
+<code>mamba install &lt;tool name&gt;</code> inside the environment.
+Please refer the official <a href="https://conda.io/projects/conda/en/latest/user-guide/troubleshooting.html" title="User guide » Troubleshooting">troubleshooting guide</a> for
 further help.</p>
 <blockquote>
 <p><em>Note:</em> On macOS and Linux, the supported tools and their
@@ -1687,9 +1713,9 @@ supplementary <code>requirements-*.txt</code> provided in the
 <code>src/main/resources/</code> directory.</p>
 </blockquote></li>
 <li><p>Error installing Perl modules:</p>
-<p>Mac OS users must ensure that they have write permission to the
-<code>/Users/\*/.cpan/</code> directory, and Linux users must ensure
-that their CPAN is properly configured.</p>
+<p>Users must ensure that they have write permission to the
+<code>/Users/\*/.cpan/</code> or similar directory, and the CPAN is
+properly configured.</p>
 <blockquote>
 <p><em>Note about MAKE</em>: ‘make’ is an essential tool for building
 Perl modules. Please make sure that you have ‘make’ installed in your
@@ -1725,6 +1751,7 @@ Toolkit</a></li>
 Blast</a></li>
 <li><a href="http://bowtie-bio.sourceforge.net/bowtie2/index.shtml">Bowtie2</a></li>
 <li><a href="http://www.htslib.org/download/">Samtools</a></li>
+<li><a href="https://ccb.jhu.edu/software/kraken2/">Kraken2</a></li>
 </ul></li>
 </ul>
 <hr />
