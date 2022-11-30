@@ -62,7 +62,7 @@ unless (Log::Log4perl::initialized()) {
 my $logger = Log::Log4perl->get_logger();
 
 sub check_exists_command { 
-    my $check = `sh -c 'command -v $_[0]'`; 
+    my $check = `bash -c 'command -v $_[0]'`;
     return $check;
 }
 
@@ -70,117 +70,117 @@ my $flag = 0;
 
 
 if (! check_exists_command "$ncbi_edirect_path/esearch"){
-    $logger->error("Incorrect Configuration : toolPath > ncbi_edirect : Please provide the installation directory of edirect utils.");
+    $logger->error("Incorrect Configuration : toolPath > ncbi_edirect\nUnable to find the directory containing the edirect executables. Please manually enter the path of the directory containing all the executables of 'edirect utils' in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if (! check_exists_command "$fastq_dump"){
-    $logger->error("Incorrect Configuration : toolPath > fastq_dump : Please provide the correct executable for fastq-dump.");
+    $logger->error("Incorrect Configuration : toolPath > fastq_dump\nUnable to find 'fastq_dump' in the PATH. Please manually enter fastq_dump's correct executable path in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if (! check_exists_command "$fastqc"){
-    $logger->error("Incorrect Configuration : toolPath > fastqc : Please provide the correct executable for fastqc.");
+    $logger->error("Incorrect Configuration : toolPath > fastqc\nUnable to find 'fastqc' in the PATH. Please manually enter fastqc's correct executable path in the configuration file: conf.txt");
     $flag = 1;
 }
 
-if (! check_exists_command "$trimmomatic"){
-    $logger->error("Incorrect Configuration : toolPath > trimmomatic : Please provide the correct executable for trimmomatic.");
+if (! -s "$trimmomatic"){
+    $logger->error("Incorrect Configuration : toolPath > trimmomatic\nUnable to find 'Trimmomatic' in the PATH. Please manually enter Trimmomatic's correct executable path in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if (! check_exists_command "$fastx_collapser"){
-    $logger->error("Incorrect Configuration : toolPath > fastx_collapser : Please provide the correct executable for fastx_collapser.");
+    $logger->error("Incorrect Configuration : toolPath > fastx_collapser\nUnable to find 'fastx_collapser' in the PATH. Please manually enter fastx_collapser's correct executable path in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if (! check_exists_command "$blastn"){
-    $logger->error("Incorrect Configuration : toolPath > blastn : Please provide the correct executable for blastn.");
+    $logger->error("Incorrect Configuration : toolPath > blastn\nUnable to find 'blastn' in the PATH. Please manually enter blastn's correct executable path in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if (! check_exists_command "$bowtie2"){
-    $logger->error("Incorrect Configuration : toolPath > bowtie2 : Please provide the correct executable for bowtie2.");
+    $logger->error("Incorrect Configuration : toolPath > bowtie2\nUnable to find 'bowtie2' in the PATH. Please manually enter bowtie2's correct executable path in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if (! check_exists_command "$samtools"){
-    $logger->error("Incorrect Configuration : toolPath > samtools : Please provide the correct executable for samtools.");
+    $logger->error("Incorrect Configuration : toolPath > samtools\nUnable to find 'samtools' in the PATH. Please manually enter samtools's correct executable path in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if (! -s "$adapters_PE"){
-    $logger->error("Incorrect Configuration : toolPath > adapters_PE : Please check the paired end adapter fasta.");
+    $logger->error("Incorrect Configuration : toolPath > adapters_PE : Please check the path for paired end adapter fasta in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if (! -s "$adapters_SE"){
-    $logger->error("Incorrect Configuration : toolPath > adapters_SE : Please check the single end adapter fasta.");
+    $logger->error("Incorrect Configuration : toolPath > adapters_SE : Please check the path for single end adapter fasta in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($pipeline_threads !~ /^\d+$/){
-    $logger->error("Incorrect Configuration : pipeline > threads : Numerical value expected.");
+    $logger->error("Incorrect Configuration : pipeline > threads : Numerical value expected in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if (($fastq_dump_perc !~ /^\d+$/) or ($fastq_dump_perc < 1 ) ){
-    $logger->error("Incorrect Configuration : fastq_dump > data_perc : Numerical value expected (>=1).");
+    $logger->error("Incorrect Configuration : fastq_dump > data_perc : Numerical value expected (>=1) in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($fastqc_threads !~ /^\d+$/){
-    $logger->error("Incorrect Configuration : fastqc > threads : Numerical value expected.");
+    $logger->error("Incorrect Configuration : fastqc > threads : Numerical value expected in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($trimmomatic_threads !~ /^\d+$/){
-    $logger->error("Incorrect Configuration : trimmomatic > threads : Numerical value expected.");
+    $logger->error("Incorrect Configuration : trimmomatic > threads : Numerical value expected in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($trimmomatic_sliding_win !~ /\d+:\d+$/){
-    $logger->error("Incorrect Configuration : trimmomatic > sliding_window : expected format: 4:20.");
+    $logger->error("Incorrect Configuration : trimmomatic > sliding_window : Invalid 'sliding_window' parameter in the configuration file: conf.txt. (acceptable example syntax: 4:20)");
     $flag = 1;
 }
 
 if ($trimmomatic_min_len !~ /^\d+$/){
-    $logger->error("Incorrect Configuration : trimmomatic > min_len : Numerical value expected.");
+    $logger->error("Incorrect Configuration : trimmomatic > min_len : Numerical value expected in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($trimmomatic_read_drop_cutoff !~ /^\d+$/){
-    $logger->error("Incorrect Configuration : trimmomatic > read_drop_perc_cutoff : Numerical value expected.");
+    $logger->error("Incorrect Configuration : trimmomatic > read_drop_perc_cutoff : Numerical value expected in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($blastn_perc_identity !~ /^\d+$/){
-    $logger->error("Incorrect Configuration : blastn > perc_identity : Numerical value expected.");
+    $logger->error("Incorrect Configuration : blastn > perc_identity : Numerical value expected in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($blastn_qcov_hsp_perc !~ /^\d+$/){
-    $logger->error("Incorrect Configuration : blastn > qcov_hsp_perc : Numerical value expected.");
+    $logger->error("Incorrect Configuration : blastn > qcov_hsp_perc : Numerical value expected in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($blastn_num_threads !~ /^\d+$/){
-    $logger->error("Incorrect Configuration : blastn > num_threads : Numerical value expected.");
+    $logger->error("Incorrect Configuration : blastn > num_threads : Numerical value expected in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($bowtie2_threads !~ /^\d+$/){
-    $logger->error("Incorrect Configuration : bowtie2 > threads : Numerical value expected.");
+    $logger->error("Incorrect Configuration : bowtie2 > threads : Numerical value expected in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($bowtie2_e2e_preset !~ /^sensitive$|^very-sensitive$|^fast$|^very-fast$/){
-    $logger->error("Incorrect Configuration : bowtie2 > end_to_end_preset : Please provide one of the following bowtie2 presets: 'sensitive' or 'very-sensitive' or 'fast' or 'very-fast'");
+    $logger->error("Incorrect Configuration : bowtie2 > end_to_end_preset : Please provide one of the following bowtie2 presets: 'sensitive' or 'very-sensitive' or 'fast' or 'very-fast' in the configuration file: conf.txt");
     $flag = 1;
 }
 
 if ($flag == 1){
-    die $logger->error("Configuration error");
+    die $logger->error("Configuration error: conf.txt");
 }
 
 # check_exists_command "$ncbi_edirect_path/esearch" or $logger->error("Incorrect Configuration : toolPath > ncbi_edirect : Please provide the installation directory of edirect utils.");
