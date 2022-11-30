@@ -147,7 +147,6 @@ By default, the pipeline uses a pre-built Kraken2 viral genomic database ([relea
     -   Log::Log4perl
     -   Getopt::Long
     -   Text::CSV
-    -   Text::Fuzzy
     -   Text::Unidecode
 
 -   Tools:
