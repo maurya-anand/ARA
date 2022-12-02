@@ -307,16 +307,20 @@ sub analyse_raw_data {
 	if (-d "$work_dir"){
 		
 		open (STATS,">$statsFile") or $logger->logdie("Cannot write blast hits stats to - $statsFile: $!");
+		
+		my $header;
 
 		if (($blastn_exec_flag == 1) && ($bowtie2_exec_flag == 1)){
-			print STATS "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
+			$header = "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
 		}
 		elsif ($blastn_exec_flag == 1){
-			print STATS "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
+			$header = "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
 		}
 		else{
-			print STATS "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
+			$header = "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
 		}
+		
+		print STATS "$header\n";
 
 		## collect stats for each run from the metadata
 		foreach my $runAccn (keys %runIDs){
@@ -336,6 +340,9 @@ sub analyse_raw_data {
 			}
 		}
 		close STATS;
+
+		reorder($statsFile,$header);
+
 		$logger->info("Pipeline : Combined alignment stats : $statsFile");
 		$logger->info("Pipeline : Summary : More details can be found in sample-wise log files at $work_dir/runlog.*.txt");
 	}
@@ -384,17 +391,20 @@ sub screen_raw_data {
 	if (-d "$work_dir"){
 		open (SCREENED,">$screenedRunInfo") or $logger->logdie("Cannot write screened run info to - $screenedRunInfo: $!");
 		open (STATS,">$statsFile") or $logger->logdie("Cannot write blast screeing stats to - $statsFile: $!");
-	
+
+		my $header;
+
 		if (($blastn_exec_flag == 1) && ($bowtie2_exec_flag == 1)){
-			print STATS "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
+			$header = "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders);
 		}
 		elsif ($blastn_exec_flag == 1){
-			print STATS "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
+			$header = "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\t".join("\t",@runInfoHeaders);
 		}
 		else{
-			print STATS "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
+			$header = "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders);
 		}
 		
+		print STATS "$header\n";
 		print SCREENED join("\t",@runInfoHeaders)."\n";
 
 		my $passed_runs=0;
@@ -407,7 +417,7 @@ sub screen_raw_data {
 			if (($blastn_exec_flag == 1) and ($bowtie2_exec_flag == 1)){
 				$blast_stats = collect_blast_stats($run,$work_dir);
 				$bowtie_stats = collect_bowtie2_stats($run,$work_dir);
-
+				
 				my @blStatsRec = split("\t",$blast_stats);
 				my @bowStatsRec = split("\t",$bowtie_stats);
 				
@@ -444,6 +454,9 @@ sub screen_raw_data {
 			}
 		}
 		close STATS;
+		
+		reorder($statsFile,$header);
+
 		$logger->info("Pipeline : RAW data screening stats : $statsFile");
 		$logger->info("Pipeline : Summary : Total runs processed: $total_runs. Total number of passed runs: $passed_runs");
 		$logger->info("Pipeline : Summary : More details can be found in sample-wise log files at $work_dir/runlog.*.txt");
@@ -519,15 +532,19 @@ sub summarize {
 		
 		open (STATS,">$statsFile") or $logger->logdie("Cannot write blast hits stats to - $statsFile: $!");
 
+		my $header;
+
 		if (($blastn_exec_flag == 1) && ($bowtie2_exec_flag == 1)){
-			print STATS "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
+			$header = "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders);
 		}
 		elsif ($blastn_exec_flag == 1){
-			print STATS "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
+			$header = "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Blast\tUnique_hits_perc_in_Blast\tTotal_reads_in_Sample\tTotal_hits_in_Blast\tTotal_hits_perc_in_Blast\tBlast_mapping_cutoff\t".join("\t",@runInfoHeaders);
 		}
 		else{
-			print STATS "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders)."\n";
+			$header = "SRA_Run_ID\tUnique_reads_in_Sample\tUnique_hits_in_Bowtie2\tUnique_hits_perc_in_Bowtie2\tTotal_reads_in_Sample\tTotal_hits_in_Bowtie2\tTotal_hits_perc_in_Bowtie2\tBowtie2_mapping_cutoff\t".join("\t",@runInfoHeaders);
 		}
+
+		print STATS "$header\n";
 
 		## collect stats for each run from the metadata
 		foreach my $runAccn (keys %runIDs){
@@ -547,9 +564,9 @@ sub summarize {
 			}
 		}
 		close STATS;
+		reorder($statsFile,$header);
 	}
 }
-
 
 sub create_bowtie2_index {
 	my ($inp_sequence,$outDir)= @_;
@@ -571,7 +588,6 @@ sub create_bowtie2_index {
     
 }
 
-
 sub create_blastn_db {
 	my ($inp_sequence,$outDir)= @_;
 	
@@ -592,4 +608,14 @@ sub create_blastn_db {
 
 	return "$outDir/blastn_db/$index_label";
     
+}
+
+sub reorder{
+	my($statsFile,$origHeaders)=(@_);
+	my $comm= `head -n 1 $statsFile && tail -n +2 $statsFile | sort -k7,7nr`;
+	# print "$origHeaders\n";
+	# print "---comm\n$comm\n---comm\n";
+	open (STATS,">$statsFile") or $logger->logdie("Cannot write blast hits stats to - $statsFile: $!");
+	print STATS $comm;
+	close STATS;
 }
