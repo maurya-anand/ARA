@@ -1,5 +1,8 @@
-## AMA : An automatic pipeline for exploration of SRA datasets with sequences as a query
+------------------------------------------------------------------------
 
+## ARA (Automated Record Analysis) : An automatic pipeline for exploration of SRA datasets with sequences as a query
+
+------------------------------------------------------------------------
 
 ### Requirements
 
@@ -39,8 +42,8 @@ Before starting any analysis with the pipeline, please make sure that the system
 -   **Using Docker**
 
     ``` bash
-    cd AMA/
-    docker build -t ama_img .
+    cd ARA/
+    docker build -t ara_img .
     ```
 
 *or*
@@ -48,9 +51,9 @@ Before starting any analysis with the pipeline, please make sure that the system
 -   **Using Mamba**
 
     ``` bash
-    cd AMA/
+    cd ARA/
     mamba env create --file requirements.yaml
-    mamba activate ama_env
+    mamba activate ara_env
     perl setup.pl
     ```
 
@@ -66,13 +69,13 @@ Refer the 'Troubleshooting' section in case of any installation related issues.
 
 -   **Docker**
 
-    `docker run -it ama_img /home/AMA-main/ama.pl --input /home/AMA-main/example/SraRunInfo.csv --sequences /home/AMA-main/example/Arabidopsis_thaliana.TAIR10.ncrna.fa`
+    `docker run -it ara_img /home/ARA-main/ara.pl --input /home/ARA-main/example/SraRunInfo.csv --sequences /home/ARA-main/example/Arabidopsis_thaliana.TAIR10.ncrna.fa`
 
 -   **Mamba environment**
 
-    `perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa`
+    `perl ara.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa`
 
-To get full usage info: `perl ama.pl --help`
+To get full usage info: `perl ara.pl --help`
 
 > *Note*: The user can delete the contents of `results/` directory after testing the tool using the example mentioned above.
 
@@ -92,15 +95,15 @@ By default, the pipeline uses a pre-built Kraken2 viral genomic database ([relea
 
 -   **`--input`** (mandatory) The user can provide input in either of the following ways:
 
-    -   A single SRA run accession. eg: **`perl ama.pl --input SRR12548227 --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa`**
+    -   A single SRA run accession. eg: **`perl ara.pl --input SRR12548227 --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa`**
 
-    -   A list of run accessions in a text file (1 run accession per line). eg: **`perl ama.pl --input example/list.txt --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa`**
+    -   A list of run accessions in a text file (1 run accession per line). eg: **`perl ara.pl --input example/list.txt --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa`**
 
-    -   The SRA runInfo exported directly from the NCBI-SRA web portal. Goto the [SRA homepage](https://www.ncbi.nlm.nih.gov/sra "Home - NCBI - SRA") and search for the desired keyword. Export the `SraRunInfo.csv` by clicking 'Send to' =\> File =\> RunInfo). eg: **`perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa`**
+    -   The SRA runInfo exported directly from the NCBI-SRA web portal. Goto the [SRA homepage](https://www.ncbi.nlm.nih.gov/sra "Home - NCBI - SRA") and search for the desired keyword. Export the `SraRunInfo.csv` by clicking 'Send to' =\> File =\> RunInfo). eg: **`perl ara.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa`**
 
 -   **`--sequences`** (mandatory) The user should provide a fasta file containing the query sequences.
 
--   **`--output`** (optional) The output directory to store the results. By default, the output will be stored into the **`results/`** directory of the package. eg: **`perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/`**
+-   **`--output`** (optional) The output directory to store the results. By default, the output will be stored into the **`results/`** directory of the package. eg: **`perl ara.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/`**
 
 -   **`--mode`** (optional) Choose one of the three modes to run the pipeline.
 
@@ -108,11 +111,11 @@ By default, the pipeline uses a pre-built Kraken2 viral genomic database ([relea
 
     -   The **`full`** mode will execute the pipeline by downloading the complete fastq file per SRA-run accession.
 
-    -   The **`both`** option searches for samples using a fraction of the data that meet the minimum alignment cutoff from either 'bowtie2' or 'blastn', and then automatically performs alignment by downloading the entire fastq file. eg: **`perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/ --mode screen`**
+    -   The **`both`** option searches for samples using a fraction of the data that meet the minimum alignment cutoff from either 'bowtie2' or 'blastn', and then automatically performs alignment by downloading the entire fastq file. eg: **`perl ara.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/ --mode screen`**
 
         > *Note:* There is a supporting **`summary`** mode, that will generate a unified alignment summary by examining the output files created by either screen-mode or full-mode. The summary mode should only be used when the user needs to recreate the summary stats from the pre-existing results. The user must enter **`–mode summary`** along with the previously used command parameters to re-generate the summary.
 
-    -   **`--config`** (optional) Pipeline configuration. By default it will use the **`conf.txt`** generated by the setup script. eg: **`perl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/ --mode screen --config conf.txt`**
+    -   **`--config`** (optional) Pipeline configuration. By default it will use the **`conf.txt`** generated by the setup script. eg: **`perl ara.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output /src/main/test/ --mode screen --config conf.txt`**
 
 ------------------------------------------------------------------------
 
