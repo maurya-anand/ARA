@@ -1,4 +1,4 @@
-name: ama_env
+name: ara_env
 channels:
   - conda-forge
   - bioconda

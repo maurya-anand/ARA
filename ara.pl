@@ -56,8 +56,8 @@ GetOptions ("i|input=s" => \$input_run_info,
 			$logger->error("Invalid arguments");
 
 if ($help) {
-	$logger->info("\n\nUsage info :\n\nperl ama.pl\n--input or -i  <runInfo_csv>\n--sequences or -s  <sequences.fasta>\n--output or -o  <output_directory>\n--mode or -m  <run_mode> (eg: 'screen' or 'full' or 'both' or 'summary'). Default: screen\n--config or -c  <pipeline_config_file>\n");
-	$logger->info("Example usage:\nperl ama.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output src/main/test/ --mode screen --config conf.txt");
+	$logger->info("\n\nUsage info :\n\nperl ara.pl\n--input or -i  <runInfo_csv>\n--sequences or -s  <sequences.fasta>\n--output or -o  <output_directory>\n--mode or -m  <run_mode> (eg: 'screen' or 'full' or 'both' or 'summary'). Default: screen\n--config or -c  <pipeline_config_file>\n");
+	$logger->info("Example usage:\nperl ara.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output src/main/test/ --mode screen --config conf.txt");
 	exit;
 }
 else {
@@ -94,7 +94,7 @@ else {
 	}
 
 	if ($inp_flag == 1){
-		$logger->info("Type this command for usage info: perl ama.pl -help");
+		$logger->info("Type this command for usage info: perl ara.pl -help");
 		exit;
 	}
 	else {
@@ -170,7 +170,7 @@ system("mkdir -p $metadata_dir");
 my $references_dir = "$output_directory/$output_file_label/reference";
 
 # retrieving run and sample info from NCBI SRA
-$logger->info("Pipeline : AMA v.$pipeline_ver executed on $host");
+$logger->info("Pipeline : ARA v.$pipeline_ver executed on $host");
 $logger->info("Using the following parameters:\n\n--input: $input_run_info\n--sequence: $input_seq_fasta\n--output: $output_directory\n--mode: $run_mode\n--config: $input_config\n\n");
 
 sub validate_input {
