@@ -1,6 +1,6 @@
 
 # Set the base image to Ubuntu
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # to override the interactive installation of dependencies such as tzdata
 ENV DEBIAN_FRONTEND=noninteractive 
@@ -36,10 +36,10 @@ ENV PATH /opt/kraken2-2.1.2/kraken2/:$PATH
 RUN cd
 # setting up the Perl modules required for the pipeline and default configuration
 RUN cd /home && \
-    wget https://github.com/maurya-anand/AMA/archive/refs/heads/main.zip && \
+    wget https://github.com/maurya-anand/ARA/archive/refs/heads/main.zip && \
     unzip main.zip && \
-    cd AMA-main/ && \
+    cd ARA-main/ && \
     perl setup.pl
     
 # configuration file generated. Installation finished
-RUN echo -e "Installation completed. AMA is ready to use."
+RUN echo -e "Installation completed. ARA is ready to use."
