@@ -358,7 +358,6 @@ pre code {
 </div>
 
 
-<hr />
 <div id="ara-automated-record-analysis-an-automatic-pipeline-for-exploration-of-sra-datasets-with-sequences-as-a-query" class="section level2">
 <h2>ARA (Automated Record Analysis) : An automatic pipeline for
 exploration of SRA datasets with sequences as a query</h2>
@@ -434,6 +433,11 @@ procedure mentioned above.</em></p>
 tools/modules may take several minutes. The warning messages that appear
 during the installation of certain Perl modules can be ignored by
 users.</p>
+<p>Optional: The user can also add the current directory to PATH for
+ease of use. Use the <code>chmod +x ara.pl</code> followed by
+<code>export PATH=&quot;$(pwd):$PATH&quot;</code> command. Alternatively, the user
+is free to create symbolic, copy the executable to <code>/bin/</code>,
+or use any other method depending on their operating system.</p>
 <p>Refer the ‘Troubleshooting’ section in case of any installation
 related issues.</p>
 <hr />
@@ -465,6 +469,20 @@ choose between <em>blastn</em> or <em>bowtie2</em> by changing the
 ‘execute flag’ to either 0 or 1 in the configuration file while leaving
 the rest of the parameters to default values. By default, both the tools
 are enabled <em>ie</em>. <code>execute = 1</code>.</p>
+<p>The <code>read_drop_perc_cutoff</code> in <code>conf.txt</code>
+config file denotes the cutoff to discard a sample if the total reads
+left after executing the trimmomatic are higher than the threshold (by
+default, if the more than 70% of reads are dropped as per the
+trimmomatic log, then the sample will fail the quality criteria and will
+not be processed downstream). Please refer the documentation of <a href="https://github.com/usadellab/Trimmomatic">Trimmomatic</a> for more
+details about the parameters present in the config file.</p>
+<p>Similarly, the criteria to check the minimal alignment rate are
+indicated by the <code>alignment perc cutoff</code> parameter under
+blastn and bowtie2 in the <code>conf.txt</code> configuration file (if
+the total alignment percentage is less than the threshold then the
+pipeline will report that the sample failed the quality criteria). More
+details about the parameters used in the <code>conf.txt</code> file can
+be found in the respective documentations of <a href="https://www.ncbi.nlm.nih.gov/books/NBK279690/">Blastn</a> and <a href="https://bowtie-bio.sourceforge.net/bowtie2/manual.shtml">Bowtie2</a>.</p>
 <p>By default, the pipeline uses a pre-built Kraken2 viral genomic
 database (<a href="https://genome-idx.s3.amazonaws.com/kraken/k2_viral_20220908.tar.gz">release:
 9/8/2022</a>) from <a href="https://benlangmead.github.io/aws-indexes/k2" class="uri">https://benlangmead.github.io/aws-indexes/k2</a>. Users can

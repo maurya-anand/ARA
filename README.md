@@ -59,6 +59,8 @@ Alternatively, the github repo can also be cloned through the options shown afte
 
 Please be patient because downloading and configuring the tools/modules may take several minutes. The warning messages that appear during the installation of certain Perl modules can be ignored by users.
 
+Optional: The user can also add the current directory to PATH for ease of use. Use the `chmod +x ara.pl` followed by `export PATH="$(pwd):$PATH"` command. Alternatively, the user is free to create symbolic, copy the executable to `/bin/`, or use any other method depending on their operating system.
+
 Refer the 'Troubleshooting' section in case of any installation related issues.
 
 ------------------------------------------------------------------------
@@ -82,6 +84,10 @@ To get full usage info: `perl ara.pl --help`
 The configuration file `conf.txt` is automatically generated during the installation by setup script. It contains certain default parameters as well as the location to the executable binaries of the tools incorporated in the pipeline.
 
 The user can modify the default parameters in `conf.txt` and pass it to the pipeline as an input. For example, the user can choose between *blastn* or *bowtie2* by changing the 'execute flag' to either 0 or 1 in the configuration file while leaving the rest of the parameters to default values. By default, both the tools are enabled *ie*. `execute = 1`.
+
+The `read_drop_perc_cutoff` in `conf.txt` config file denotes the cutoff to discard a sample if the total reads left after executing the trimmomatic are higher than the threshold (by default, if the more than 70% of reads are dropped as per the trimmomatic log, then the sample will fail the quality criteria and will not be processed downstream). Please refer the documentation of [Trimmomatic ](https://github.com/usadellab/Trimmomatic) for more details about the parameters present in the config file.
+
+Similarly, the criteria to check the minimal alignment rate are indicated by the `alignment perc cutoff` parameter under blastn and bowtie2 in the `conf.txt` configuration file (if the total alignment percentage is less than the threshold then the pipeline will report that the sample failed the quality criteria). More details about the parameters used in the `conf.txt` file can be found in the respective documentations of [Blastn](https://www.ncbi.nlm.nih.gov/books/NBK279690/) and [Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/manual.shtml).
 
 By default, the pipeline uses a pre-built Kraken2 viral genomic database ([release: 9/8/2022](https://genome-idx.s3.amazonaws.com/kraken/k2_viral_20220908.tar.gz)) from <https://benlangmead.github.io/aws-indexes/k2>. Users can provide their own database by changing the `kraken2_db_path` parameter in the `conf.txt` file.
 
@@ -121,7 +127,7 @@ By default, the pipeline uses a pre-built Kraken2 viral genomic database ([relea
 
 The pipeline will create folders per SRA run accession and generate results using the run accession as the prefix. The analysis related to the screening a fraction of data will be stored in `screening_results` directory whereas the analysis conducted on the whole dataset will be stored in `full_analyis_results` directory.
 
-An outline of directory structure containing the results is shown below- 
+An outline of directory structure containing the results is shown below-
 
     results/
     `-- test/ (name derived from the input fasta sequence file)
