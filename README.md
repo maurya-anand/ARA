@@ -1,6 +1,5 @@
 ## ARA (Automated Record Analysis) : An automatic pipeline for exploration of SRA datasets with sequences as a query
 
-------------------------------------------------------------------------
 
 ### Requirements
 
@@ -37,9 +36,7 @@ First, click the green "Code" button, then select "Download Zip" to begin downlo
 
 Alternatively, the github repo can also be cloned through the options shown after clicking the "Code" button. Navigate inside the folder after by using the `cd ARA/` command before starting the setup.
 
-**Warning**
-
-Before starting any analysis with the pipeline, please make sure that the system has enough disk space available for the data you wish to retrieve and process from the SRA repository.
+> *Warning: Before starting any analysis with the pipeline, please make sure that the system has enough disk space available for the data you wish to retrieve and process from the SRA repository.*
 
 -   **Using Docker**
 
