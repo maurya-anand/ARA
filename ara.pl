@@ -188,7 +188,7 @@ sub validate_input {
 if ($exec_SRA_screen_flag == 1){
 	my $data_analysis_dir = "$output_directory/$output_file_label/screening_results";
 	my $outFileParsed="$metadata_dir/$output_file_label.metadata.txt";
-	my $sraIDsBlastStats="$output_directory/$output_file_label/$output_file_label.screening.analysis.stats.txt";
+	my $sraIDsBlastStats="$output_directory/$output_file_label/$output_file_label.screening.analysis.stats.sorted.by.alignment.txt";
 	my $outRunInfoParsedScreened="$metadata_dir/$output_file_label.metadata.screened.txt";
 	
 	if ($single_run_mode == 1){
@@ -215,7 +215,7 @@ if ($exec_SRA_screen_flag == 1){
 if ($exec_SRA_analysis_flag == 1){
 	my $data_analysis_dir = "$output_directory/$output_file_label/full_analyis_results";
 	my $runInfoParsed="$metadata_dir/$output_file_label.metadata.txt";
-	my $sraIDsAlnStats="$output_directory/$output_file_label/$output_file_label.full.analysis.stats.txt";
+	my $sraIDsAlnStats="$output_directory/$output_file_label/$output_file_label.full.analysis.stats.sorted.by.alignment.txt";
 
 	if ($single_run_mode == 1){
 		my $metadata_exec_comm = "perl $base_path/src/main/scripts/metadata/fetch.SRA.metadata.pl $input_run_info $metadata_dir $output_file_label $base_path $ncbi_edirect_path single";
@@ -250,14 +250,14 @@ if (lc $run_mode eq "summary"){
 	my $runInfoParsed="$metadata_dir/$output_file_label.metadata.txt";
 
 	if (-d "$screening_analysis_dir"){
-		my $screenAlnStats="$output_directory/$output_file_label/$output_file_label.screening.analysis.stats.txt";
+		my $screenAlnStats="$output_directory/$output_file_label/$output_file_label.screening.analysis.stats.sorted.by.alignment.txt";
 		summarize($runInfoParsed,$screening_analysis_dir,$screenAlnStats);
-		$logger->info("Pipeline : Combined screening alignment stats : $screenAlnStats");
+		$logger->info("Pipeline : Summary : Combined screening alignment stats (sorted in decreasing order of total hits percentage): $screenAlnStats");
 	}
 	if (-d "$full_analysis_dir"){
-		my $fullAlnStats="$output_directory/$output_file_label/$output_file_label.full.analysis.stats.txt";
+		my $fullAlnStats="$output_directory/$output_file_label/$output_file_label.full.analysis.stats.sorted.by.alignment.txt";
 		summarize($runInfoParsed,$full_analysis_dir,$fullAlnStats);
-		$logger->info("Pipeline : Combined alignment stats : $fullAlnStats");
+		$logger->info("Pipeline : Summary : Combined alignment stats (sorted in decreasing order of total hits percentage): $fullAlnStats");
 	}
 }
 
@@ -343,7 +343,7 @@ sub analyse_raw_data {
 
 		reorder($statsFile,$header);
 
-		$logger->info("Pipeline : Combined alignment stats : $statsFile");
+		$logger->info("Pipeline : Summary : Combined alignment stats  (sorted in decreasing order of total hits percentage): $statsFile");
 		$logger->info("Pipeline : Summary : More details can be found in sample-wise log files at $work_dir/runlog.*.txt");
 	}
 }
@@ -456,9 +456,8 @@ sub screen_raw_data {
 		close STATS;
 		
 		reorder($statsFile,$header);
-
-		$logger->info("Pipeline : RAW data screening stats : $statsFile");
 		$logger->info("Pipeline : Summary : Total runs processed: $total_runs. Total number of passed runs: $passed_runs");
+		$logger->info("Pipeline : Summary : Combined screening alignment stats (sorted in decreasing order of total hits percentage): $statsFile");
 		$logger->info("Pipeline : Summary : More details can be found in sample-wise log files at $work_dir/runlog.*.txt");
 
 	}
