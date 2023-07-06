@@ -83,7 +83,9 @@ To get full usage info: `perl ara.pl --help`
 
 The configuration file `conf.txt` is automatically generated during the installation by setup script. It contains certain default parameters as well as the location to the executable binaries of the tools incorporated in the pipeline.
 
-The user can modify the default parameters in `conf.txt` and pass it to the pipeline as an input. For example, the user can choose between _blastn_ or _bowtie2_ by changing the 'execute flag' to either 0 or 1 in the configuration file while leaving the rest of the parameters to default values. By default, both the tools are enabled _ie_. `execute = 1`.
+The user can modify the default parameters in `conf.txt` and pass it to the pipeline as an input. For example, the `data_perc` option in the configuration refers to the default value of 5% of the dataset selected for analysis. However, the user has the flexibility to provide any integer value between 1 and 100 to specify the desired percentage of the dataset to be used.
+
+Similarly, the user can choose between _blastn_ or _bowtie2_ by changing the 'execute flag' to either 0 or 1 in the configuration file while leaving the rest of the parameters to default values. By default, both the tools are enabled _ie_. `execute = 1`.
 
 The `read_drop_perc_cutoff` in `conf.txt` config file denotes the cutoff to discard a sample if the total reads left after executing the trimmomatic are higher than the threshold (by default, if the more than 70% of reads are dropped as per the trimmomatic log, then the sample will fail the quality criteria and will not be processed downstream). Please refer the documentation of [Trimmomatic ](https://github.com/usadellab/Trimmomatic) for more details about the parameters present in the config file.
 
