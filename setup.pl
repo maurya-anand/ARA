@@ -241,7 +241,7 @@ version = 1.6.0
 
 execute = 1
 ## percentage of data to be downloaded using fastq dump:
-data_perc = 10
+data_perc = 5
 ########################################## end fastq dump config ####################################################
 
 [fastqc]
