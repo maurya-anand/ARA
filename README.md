@@ -177,6 +177,20 @@ For a thorough understanding of the results of the third-party tools, take a loo
 
 ---
 
+### Disk usage using the input from the example
+
+The table below provides a summary of the disk usage for different analyses conducted on varying dataset sizes. It demonstrates how disk usage can increase depending on the choice of the fraction of the dataset the user wishes to analyze.
+
+| RUN ACCESSION | 100% of dataset | 5% of dataset | 10% of dataset |
+| ------------- | --------------- | ------------- | -------------- |
+| SRR8392720    | 1.3G            | 85M           | 156M           |
+| SRR7289585    | 1.4G            | 150M          | 288M           |
+| SRR12548227   | 15M             | 9.0M          | 9.1M           |
+
+This summary highlights how the disk usage (in megabytes or gigabytes) can vary depending on the chosen fraction of the dataset for analysis.
+
+---
+
 ### Troubleshooting
 
 - Errors related to mamba/conda environment:
