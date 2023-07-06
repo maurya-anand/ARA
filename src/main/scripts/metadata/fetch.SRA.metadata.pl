@@ -1,5 +1,21 @@
 #!/usr/bin/env perl
 
+# ARA (Automated Record Analysis) : An automatic pipeline for exploration of SRA datasets with sequences as a query
+# Copyright (C) 2023 Anand Maurya;Maciej Szymanski;Wojciech Karlowski
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 use strict;
 use warnings;
 use Data::Dumper;
@@ -117,7 +133,7 @@ sub getRunInfo {
 	my $runinfoTmp = `$edirectPath/esearch -db sra -query $id | $edirectPath/efetch -format xml | $edirectPath/xtract -pattern EXPERIMENT_PACKAGE -block RUN_SET -element Statistics\@nreads RUN\@total_spots -block SAMPLE -element SAMPLE\@alias SAMPLE\@accession -block STUDY -element STUDY\@alias STUDY\@accession -block STUDY -element STUDY_TITLE -element STUDY_ABSTRACT`;
 	
 	chomp $runinfoTmp;
-	
+
 	my ($type,$spots,$sampleAlias,$sampleAccn,$studyAlias,$studyAccn,$studyTitle,$study_abstract)=split(/\t/,$runinfoTmp);
 	if($type > 1){
 		$type= "PAIRED";
