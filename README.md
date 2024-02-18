@@ -1,5 +1,8 @@
 # ARA (Automated Record Analysis) : An automatic pipeline for exploration of SRA datasets with sequences as a query
 
+[![Open](https://img.shields.io/badge/DOI-https://doi.org/10.1093/gigascience/giad067-blue)](https://doi.org/10.1093/gigascience/giad067)
+[![Open](https://img.shields.io/badge/GigaDB-http://dx.doi.org/10.5524/102428-blue)](http://dx.doi.org/10.5524/102428) [![Open](https://img.shields.io/badge/RRID-SCR_023890-blue)](https://scicrunch.org/resolver/RRID:SCR_023890) [![Open](https://img.shields.io/badge/biotools-ara_automated_record_analysis-blue)](https://bio.tools/ara_automated_record_analysis) [![Open](https://img.shields.io/badge/WorkflowHub-https://doi.org/10.48546/workflowhub.workflow.546.1-blue)](https://doi.org/10.48546/workflowhub.workflow.546.1)
+
 ## Requirements
 
 - **Docker**
