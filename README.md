@@ -262,3 +262,11 @@ This summary highlights how the disk usage (in megabytes or gigabytes) can vary 
 If you use ARA pipeline for your analysis, please cite the `ARA` article as follows:
 
 > Anand Maurya, Maciej Szymanski, Wojciech M Karlowski, **ARA: a flexible pipeline for automated exploration of NCBI SRA datasets**, GigaScience, Volume 12, 2023, giad067, [https://doi.org/10.1093/gigascience/giad067](https://doi.org/10.1093/gigascience/giad067)
+
+> GigaDB: [http://dx.doi.org/10.5524/102428](http://dx.doi.org/10.5524/102428)
+
+> SciCrunch ID: [RRID:SCR_023890](https://scicrunch.org/resolver/RRID:SCR_023890)
+
+> bio.tools ID: [biotools:ara_automated_record_analysis](https://bio.tools/ara_automated_record_analysis)
+
+> WorkflowHub.eu: [10.48546/workflowhub.workflow.546.1](https://doi.org/10.48546/workflowhub.workflow.546.1)
