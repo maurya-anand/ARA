@@ -1,6 +1,6 @@
-## ARA (Automated Record Analysis) : An automatic pipeline for exploration of SRA datasets with sequences as a query
+# ARA (Automated Record Analysis) : An automatic pipeline for exploration of SRA datasets with sequences as a query
 
-### Requirements
+## Requirements
 
 - **Docker**
 
@@ -27,7 +27,7 @@
 
 ---
 
-### Installation
+## Installation
 
 The user can install the pipeline by using either Docker or Mamba using the steps mentioned below.
 
@@ -65,7 +65,7 @@ Refer the 'Troubleshooting' section in case of any installation related issues.
 
 ---
 
-### Example usage
+## Example usage
 
 - **Docker**
 
@@ -79,7 +79,7 @@ To get full usage info: `perl ara.pl --help`
 
 > _Note_: The user can delete the contents of `results/` directory after testing the tool using the example mentioned above.
 
-### Configuration file
+## Configuration file
 
 The configuration file `conf.txt` is automatically generated during the installation by setup script. It contains certain default parameters as well as the location to the executable binaries of the tools incorporated in the pipeline.
 
@@ -97,7 +97,7 @@ By default, the pipeline uses a pre-built Kraken2 viral genomic database ([relea
 
 ---
 
-### Pipeline parameters
+## Pipeline parameters
 
 - **`--input`** (mandatory) The user can provide input in either of the following ways:
 
@@ -125,7 +125,7 @@ By default, the pipeline uses a pre-built Kraken2 viral genomic database ([relea
 
 ---
 
-### Output structure
+## Output structure
 
 The pipeline will create folders per SRA run accession and generate results using the run accession as the prefix. The analysis related to the screening a fraction of data will be stored in `screening_results` directory whereas the analysis conducted on the whole dataset will be stored in `full_analyis_results` directory.
 
@@ -179,7 +179,7 @@ For a thorough understanding of the results of the third-party tools, take a loo
 
 ---
 
-### Disk usage using the input from the example
+## Disk usage using the input from the example
 
 The table below provides a summary of the disk usage for different analyses conducted on varying dataset sizes. It demonstrates how disk usage can increase depending on the choice of the fraction of the dataset the user wishes to analyze.
 
@@ -193,7 +193,7 @@ This summary highlights how the disk usage (in megabytes or gigabytes) can vary 
 
 ---
 
-### Troubleshooting
+## Troubleshooting
 
 - Errors related to mamba/conda environment:
 
@@ -229,7 +229,7 @@ This summary highlights how the disk usage (in megabytes or gigabytes) can vary 
 
 ---
 
-### List of Perl modules and tools incorporated in the pipeline
+## List of Perl modules and tools incorporated in the pipeline
 
 - Perl modules:
 
@@ -253,3 +253,9 @@ This summary highlights how the disk usage (in megabytes or gigabytes) can vary 
   - [Kraken2 \>=2.1.2](https://ccb.jhu.edu/software/kraken2/)
 
 ---
+
+## Citations
+
+If you use ARA pipeline for your analysis, please cite the `ARA` article as follows:
+
+> Anand Maurya, Maciej Szymanski, Wojciech M Karlowski, **ARA: a flexible pipeline for automated exploration of NCBI SRA datasets**, GigaScience, Volume 12, 2023, giad067, [https://doi.org/10.1093/gigascience/giad067](https://doi.org/10.1093/gigascience/giad067)
