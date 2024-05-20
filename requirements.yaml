@@ -4,13 +4,14 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - python>=3.6.10
-  - blast>=2.10.1
-  - bowtie2>=2.4.5
-  - entrez-direct>=16.2
-  - fastqc>=0.11.9
-  - fastx_toolkit>=0.0.14
-  - samtools>=1.15.1
-  - sra-tools>=2.10.7
-  - trimmomatic>=0.39
-  - kraken2>=2.1.2
+  - make<=4.3
+  - python<=3.6.10
+  - blast<=2.10.1
+  - bowtie2<=2.4.5
+  - entrez-direct<=16.2
+  - fastqc<=0.11.9
+  - fastx_toolkit<=0.0.14
+  - samtools<=1.15.1
+  - sra-tools<=2.10.7
+  - trimmomatic<=0.39
+  - kraken2<=2.1.2
