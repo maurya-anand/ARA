@@ -1,0 +1,72 @@
+
+## Empty values are not allowed.
+
+[pipeline]
+
+threads = 1
+version = 1.6.0
+########################################## end of pipeline config #####################################################
+
+[fastq_dump]
+
+execute = 1
+## percentage of data to be downloaded using fastq dump:
+data_perc = 5
+########################################## end fastq dump config ####################################################
+
+[fastqc]
+
+execute_raw_data_qc = 1
+execute_trimmed_data_qc = 1
+threads = 2
+########################################## end fastqc config ########################################################
+
+[trimmomatic]
+
+execute = 1
+threads = 2
+sliding_window = 4:20
+min_len = 18
+read_drop_perc_cutoff = 70
+########################################## end trimmomatic config ###################################################
+
+[blastn]
+
+execute = 1
+perc_identity = 90
+qcov_hsp_perc = 80
+num_threads = 2
+alignment_perc_cutoff = 1
+########################################## end blastn config ########################################################
+
+[bowtie2]
+
+execute = 1
+threads = 2
+end_to_end_preset = sensitive
+alignment_perc_cutoff = 1
+########################################## end bowtie2 config ########################################################
+
+[kraken2]
+
+execute = 1
+threads = 2
+kraken2_db_path = /ara/kraken-db
+########################################## end bowtie2 config ########################################################
+
+[toolPath]
+
+fastq_dump = /opt/conda/bin/fastq-dump
+fastqc = /opt/conda/bin/fastqc
+trimmomatic = /opt/conda/share/trimmomatic/trimmomatic.jar
+adapters_PE = /ara/src/main/resources/adapters/TruSeq2-PE.fa
+adapters_SE = /ara/src/main/resources/adapters/TruSeq2-SE.fa
+blastn = /opt/conda/bin/blastn
+makeblastdb = /opt/conda/bin/makeblastdb
+bowtie2 = /opt/conda/bin/bowtie2
+bowtie2-build = /opt/conda/bin/bowtie2-build
+samtools = /opt/conda/bin/samtools
+ncbi_edirect = /opt/conda/bin
+fastx_collapser = /opt/conda/bin/fastx_collapser
+kraken2 = /opt/conda/bin/kraken2
+########################################## end of tools path config #######################################################
