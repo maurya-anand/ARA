@@ -42,9 +42,16 @@ Alternatively, the github repo can also be cloned through the options shown afte
 
 - **Using Docker**
 
+  Pull the latest image
+
   ```bash
-  cd ARA-main/
-  docker build -t ara_img .
+  docker pull ghcr.io/maurya-anand/ara
+  ```
+
+  Run the container and print the usage instructions
+
+  ```bash
+  docker run -it ghcr.io/maurya-anand/ara
   ```
 
 _or_
@@ -72,7 +79,7 @@ Refer the 'Troubleshooting' section in case of any installation related issues.
 
 - **Docker**
 
-  `docker run -it ara_img /home/ARA-main/ara.pl --input /home/ARA-main/example/SraRunInfo.csv --sequences /home/ARA-main/example/Arabidopsis_thaliana.TAIR10.ncrna.fa`
+  `docker run -it ghcr.io/maurya-anand/ara perl ara.pl --input example/SraRunInfo.csv --sequences example/Arabidopsis_thaliana.TAIR10.ncrna.fa --output src/main/test/ --mode screen --config conf.txt`
 
 - **Mamba environment**
 
@@ -96,7 +103,7 @@ Similarly, the criteria to check the minimal alignment rate are indicated by the
 
 By default, the pipeline uses a pre-built Kraken2 viral genomic database ([release: 9/8/2022](https://genome-idx.s3.amazonaws.com/kraken/k2_viral_20220908.tar.gz)) from <https://benlangmead.github.io/aws-indexes/k2>. Users can provide their own database by changing the `kraken2_db_path` parameter in the `conf.txt` file.
 
-> _Note:_ If the user wishes to use a different installation than Bioconda, the user can manually install the required tools and specify the absolute path of the executable binaries in the configuration.
+> _Note:_ An example configuration `config.txt` is provided in the `examples/` directory. If the user wishes to use a different installation than Bioconda, the user can manually install the required tools and specify the absolute path of the executable binaries in the configuration.
 
 ---
 
